@@ -65,6 +65,7 @@ Public Class Form1
             Me.CreateGraphics.DrawString($"{RoomEventCount(i)}", RDFont, New SolidBrush(Color.Yellow),
                                          New PointF(160, i * 22))
         Next
+
     End Sub
     ''' <summary>
     ''' 为数组赋值
@@ -127,4 +128,5 @@ Public Class Form1
         End While
         Return Count
     End Function
+
 End Class
