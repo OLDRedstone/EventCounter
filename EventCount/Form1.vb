@@ -6,75 +6,11 @@ Imports System.Threading
 
 Public Class Form1
 
-    ReadOnly SoundEvents() As String = {
-        "PlaySong",
-        "SetCrotchetsPerBar",
-        "PlaySound",
-        "SetBeatsPerMinute",
-        "SetClapSounds",
-        "SetHeartExplodeVolume",
-        "SetHeartExplodeInterval",
-        "SayReadyGetSetGo",
-        "SetGameSound",
-        "SetBeatSound",
-        "SetCountingSound"
-    }
-    ReadOnly RailEvents() As String = {
-        "AddClassicBeat",
-        "AddOneshotBeat",
-        "AddFreeTimeBeat",
-        "PulseFreeTimeBeat",
-        "SetRowXs"
-    }
-    ReadOnly MotionEvents() As String = {
-        "SetTheme",
-        "SetVFXPreset",
-        "SetBackgroundColor",
-        "SetForeground",
-        "SetSpeed",
-        "Flash",
-        "CustomFlash",
-        "MoveCamera",
-        "HideRow",
-        "MoveRow",
-        "PlayExpression",
-        "TintRows",
-        "BassDrop",
-        "ShakeScreen",
-        "FlipScreen",
-        "InvertColors",
-        "PulseCamera",
-        "TextExplosion",
-        "ShowDialogue",
-        "ShowStatusSign",
-        "FloatingText",
-        "AdvanceText",
-        "ChangePlayersRows",
-        "FinishLevel",
-        "Comment",
-        "Stutter",
-        "ShowHands",
-        "PaintHands",
-        "SetHandOwner",
-        "SetPlayStyle",
-        "TagAction",
-        "CallCustomMethod",
-        "NewWindowDance"
-    }
-    ReadOnly SpriteEvents() As String = {"Move",
-        "Tint",
-        "PlayAnimation",
-        "SetVisible"
-    }
-    ReadOnly RoomEvents() As String = {
-        "ShowRooms",
-        "MoveRoom",
-        "ReorderRooms",
-        "SetRoomContentMode",
-        "MaskRoom",
-        "FadeRoom",
-        "SetRoomPerspective"
-    }
+    ReadOnly SoundEvents() As String = My.Resources.Files.Sound.Split(vbCrLf)
+    ReadOnly RailEvents() As String = My.Resources.Files.Rail.Split(vbCrLf)
+    ReadOnly MotionEvents() As String = My.Resources.Files.Motion.Split(vbCrLf)
+    ReadOnly SpriteEvents() As String = My.Resources.Files.Sprite.Split(vbCrLf)
+    ReadOnly RoomEvents() As String = My.Resources.Files.Room.Split(vbCrLf)
 
     Dim SoundEventCount(SoundEvents.Length) As UInt64
     Dim RailEventCount(RailEvents.Length) As UInt64
@@ -86,11 +22,11 @@ Public Class Form1
     Dim RdlevelFile As String = ""
     Dim temp As String = "\%RDLevelUnzip%"
 
-    ReadOnly MotionEventsImage As Image = My.Resources.Resource1.events
+    ReadOnly MotionEventsImage As Image = My.Resources.Files.events
     Dim RDFont As Font
 
     Sub ChangeFont()
-        Dim fontData As Byte() = My.Resources.Resource1.RDLatinFontPoint
+        Dim fontData As Byte() = My.Resources.Files.RDLatinFontPoint
         Dim fontCollection As New PrivateFontCollection '创建字体集合
         fontCollection.AddMemoryFont(Marshal.UnsafeAddrOfPinnedArrayElement(fontData, 0), fontData.Length) '将字体字节数组添加到字体集合中
         RDFont = New Font(fontCollection.Families(0), 12)
@@ -103,14 +39,12 @@ Public Class Form1
         CountingEvents()
         ChangeFont()
         ShowEventsCount()
-        Dim ass As New My.Resources.Resource1
-        For Each m In ass
-
-        Next
     End Sub
     Sub ShowEventsCount() Handles Me.Click
+
         Me.CreateGraphics.DrawImage(MotionEventsImage,
                                     New Rectangle(New Point(15, 15), New Point(28, 28)))
+
         For i = 0 To SoundEvents.Length - 1
             Me.CreateGraphics.DrawString($"{SoundEventCount(i)}", RDFont, New SolidBrush(Color.Red),
                                          New PointF(0, i * 22))

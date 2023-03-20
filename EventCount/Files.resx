@@ -124,7 +124,77 @@
   <data name="events" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\events.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="Motion" xml:space="preserve">
+    <value>SetTheme
+SetVFXPreset
+SetBackgroundColor
+SetForeground
+SetSpeed
+Flash
+CustomFlash
+MoveCamera
+HideRow
+MoveRow
+PlayExpression
+TintRows
+BassDrop
+ShakeScreen
+FlipScreen
+InvertColors
+PulseCamera
+TextExplosion
+ShowDialogue
+ShowStatusSign
+FloatingText
+AdvanceText
+ChangePlayersRows
+FinishLevel
+Comment
+Stutter
+ShowHands
+PaintHands
+SetHandOwner
+SetPlayStyle
+TagAction
+CallCustomMethod
+NewWindowDance</value>
+  </data>
+  <data name="Rail" xml:space="preserve">
+    <value>AddClassicBeat
+AddOneshotBeat
+AddFreeTimeBeat
+PulseFreeTimeBeat
+SetRowXs</value>
+  </data>
   <data name="RDLatinFontPoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Resources\RDLatinFontPoint.otf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Room" xml:space="preserve">
+    <value>ShowRooms
+MoveRoom
+ReorderRooms
+SetRoomContentMode
+MaskRoom
+FadeRoom
+SetRoomPerspective</value>
+  </data>
+  <data name="Sound" xml:space="preserve">
+    <value>PlaySong
+SetCrotchetsPerBar
+PlaySound
+SetBeatsPerMinute
+SetClapSounds
+SetHeartExplodeVolume
+SetHeartExplodeInterval
+SayReadyGetSetGo
+SetGameSound
+SetBeatSound
+SetCountingSound</value>
+  </data>
+  <data name="Sprite" xml:space="preserve">
+    <value>Move
+Tint
+PlayAnimation
+SetVisible</value>
   </data>
 </root>
