@@ -29,7 +29,7 @@ Public Class Form1
         Dim fontData As Byte() = My.Resources.Files.RDLatinFontPoint
         Dim fontCollection As New PrivateFontCollection '创建字体集合
         fontCollection.AddMemoryFont(Marshal.UnsafeAddrOfPinnedArrayElement(fontData, 0), fontData.Length) '将字体字节数组添加到字体集合中
-        RDFont = New Font(fontCollection.Families(0), 12)
+        RDFont = New Font(fontCollection.Families(0), 24)
     End Sub
 
     Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
