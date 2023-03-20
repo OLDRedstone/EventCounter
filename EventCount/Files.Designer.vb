@@ -25,7 +25,7 @@ Namespace My.Resources
     <Global.System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0"),  _
      Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
      Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute()>  _
-    Friend Class Resource1
+    Friend Class Files
         
         Private Shared resourceMan As Global.System.Resources.ResourceManager
         
@@ -43,7 +43,7 @@ Namespace My.Resources
         Friend Shared ReadOnly Property ResourceManager() As Global.System.Resources.ResourceManager
             Get
                 If Object.ReferenceEquals(resourceMan, Nothing) Then
-                    Dim temp As Global.System.Resources.ResourceManager = New Global.System.Resources.ResourceManager("EventCount.Resource1", GetType(Resource1).Assembly)
+                    Dim temp As Global.System.Resources.ResourceManager = New Global.System.Resources.ResourceManager("EventCount.Files", GetType(Files).Assembly)
                     resourceMan = temp
                 End If
                 Return resourceMan
@@ -85,12 +85,112 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 SetTheme
+        '''SetVFXPreset
+        '''SetBackgroundColor
+        '''SetForeground
+        '''SetSpeed
+        '''Flash
+        '''CustomFlash
+        '''MoveCamera
+        '''HideRow
+        '''MoveRow
+        '''PlayExpression
+        '''TintRows
+        '''BassDrop
+        '''ShakeScreen
+        '''FlipScreen
+        '''InvertColors
+        '''PulseCamera
+        '''TextExplosion
+        '''ShowDialogue
+        '''ShowStatusSign
+        '''FloatingText
+        '''AdvanceText
+        '''ChangePlayersRows
+        '''FinishLevel
+        '''Comment
+        '''Stutter
+        '''ShowHands
+        '''PaintHands
+        '''SetHandOwner
+        '''SetPlayStyle
+        '''TagAction
+        '''CallCustomMethod
+        '''NewWindowDance 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Motion() As String
+            Get
+                Return ResourceManager.GetString("Motion", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 AddClassicBeat
+        '''AddOneshotBeat
+        '''AddFreeTimeBeat
+        '''PulseFreeTimeBeat
+        '''SetRowXs 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Rail() As String
+            Get
+                Return ResourceManager.GetString("Rail", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找 System.Byte[] 类型的本地化资源。
         '''</summary>
         Friend Shared ReadOnly Property RDLatinFontPoint() As Byte()
             Get
                 Dim obj As Object = ResourceManager.GetObject("RDLatinFontPoint", resourceCulture)
                 Return CType(obj,Byte())
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 ShowRooms
+        '''MoveRoom
+        '''ReorderRooms
+        '''SetRoomContentMode
+        '''MaskRoom
+        '''FadeRoom
+        '''SetRoomPerspective 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Room() As String
+            Get
+                Return ResourceManager.GetString("Room", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 PlaySong
+        '''SetCrotchetsPerBar
+        '''PlaySound
+        '''SetBeatsPerMinute
+        '''SetClapSounds
+        '''SetHeartExplodeVolume
+        '''SetHeartExplodeInterval
+        '''SayReadyGetSetGo
+        '''SetGameSound
+        '''SetBeatSound
+        '''SetCountingSound 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Sound() As String
+            Get
+                Return ResourceManager.GetString("Sound", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Move
+        '''Tint
+        '''PlayAnimation
+        '''SetVisible 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Sprite() As String
+            Get
+                Return ResourceManager.GetString("Sprite", resourceCulture)
             End Get
         End Property
     End Class
