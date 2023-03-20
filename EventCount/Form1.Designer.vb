@@ -37,6 +37,7 @@ Partial Class Form1
         Me.ClientSize = New System.Drawing.Size(800, 450)
         Me.Name = "Form1"
         Me.Text = "Form1"
+        Me.TransparencyKey = System.Drawing.SystemColors.Control
         Me.ResumeLayout(False)
 
     End Sub
