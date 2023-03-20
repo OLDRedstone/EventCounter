@@ -22,6 +22,6 @@
 - - -
 ## 当前
 成功解决了让我头疼的内嵌字体的问题
-在打开像 *[when the apple is bad.zip]*[1] 这样的巨量事件关卡文件时进展会非常慢（暂无头绪）
+在打开像 *[when the apple is bad.zip][1]* 这样的巨量事件关卡文件时进展会非常慢（暂无头绪）
 [when the apple is bad.zip][1]: https://cdn.discordapp.com/attachments/611380148431749151/1006805725558874153/a_bad_apple_a_day_keeps_the_rhythm_doctor_away.rdzip
 
