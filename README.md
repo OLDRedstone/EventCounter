@@ -2,7 +2,7 @@
 - - -  
 ## 用途  
 仅用于节奏医生关卡。  
-仅仅是为了方便事件计数，然后康康哪些人是**<font color=#00ffff>特</font><font color=#ff0000>效 </font><font color=#ffff00>不</font><font color=#00ff00>多</font>**[^1]。  
+仅仅是为了方便事件计数，然后康康哪些人是**特效 不多**[^1]。  
 [^1]: https://space.bilibili.com/406743035
 - - -
 ## 经历  
