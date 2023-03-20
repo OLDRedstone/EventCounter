@@ -34,7 +34,7 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(800, 450)
+        Me.ClientSize = New System.Drawing.Size(613, 409)
         Me.Name = "Form1"
         Me.Text = "Form1"
         Me.TransparencyKey = System.Drawing.SystemColors.Control
