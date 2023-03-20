@@ -13,7 +13,15 @@
 * <u>**内嵌一个字体？**[^2]</u>  
 * <u>界面做小一点？</u>  
 * <u>赋予一些动画？</u>  
+* <u>更改绘图方式？</u>
+* <u>加点趣味功能？</u>
 
 可能会很久，但我尽量做完吧  
 [^1]: 是特效真多（ 
 [^2]: 已应用 
+- - -
+## 当前
+成功解决了让我头疼的内嵌字体的问题
+在打开像 *when the apple is bad.zip*[rhythm.cafe][1] 这样的巨量事件关卡文件时进展会非常慢（暂无头绪）
+[rhythm.cafe][1]: https://cdn.discordapp.com/attachments/611380148431749151/1006805725558874153/a_bad_apple_a_day_keeps_the_rhythm_doctor_away.rdzip
+
