@@ -21,8 +21,9 @@
 [^2]: 已应用
 - - -
 ## 当前
-成功解决了让我头疼的内嵌字体的问题  
-在打开像 **when_the_apple_is_bad.zip [^3]** 这样的巨量事件关卡文件时进展会非常慢<font color=#cccccc>（老问题，暂无头绪）</font>  
+* 成功解决了让我头疼的内嵌字体的问题  
+* 在打开像 **when_the_apple_is_bad.zip [^3]** 这样的巨量事件关卡文件时进展会非常慢<font color=#cccccc>（老问题，暂无头绪）</font>  
+* 事件图标嵌入问题:暂不能动态访问resx，所以想着用GIF来代替
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
