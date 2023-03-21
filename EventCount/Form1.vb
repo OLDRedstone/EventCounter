@@ -30,7 +30,7 @@ Public Class Form1
         New Point(56, 28))
     ReadOnly IconMag As UInt16 = 1
 
-    Dim EventTypeIndex As UInt16 = 2
+    Dim EventTypeIndex As UInt16 = 0
 
     Dim StartControlCounts As UInt16 = 0
 
@@ -202,29 +202,28 @@ Public Class Form1
         For i As UInt16 = 0 To Type.Length - 1
             EventIcon(i) = New PictureBox With {
                 .Location = New Point(
-                    IconSet.Left + (j \ Raw) * IconSet.Width * IconMag,
-                    IconSet.Top + (j Mod Raw) * IconSet.Height * IconMag),
+                    IconSet.Left + (i \ Raw) * IconSet.Width * IconMag,
+                    IconSet.Top + (i Mod Raw) * IconSet.Height * IconMag),
                 .Size = New Point(IconSet.Width * IconMag, IconSet.Height * IconMag),
                 .Text = $"{Type(i)}={TypeCount(i)}",
                 .Font = RDFont,
                 .BackColor = Color.Transparent,
                 .BackgroundImage = ReturnImage(i, SCType.None),
-                .BackgroundImageLayout = ImageLayout.Stretch,
                 .Name = Type(i)
             }
-            If TypeCount(i) > 0 Then
+
+            If TypeCount(i) = 0 Then
                 EventIcon(i).BackgroundImage = ReturnImage(i, SCType.Inactive)
             End If
+
             AddHandler EventIcon(i).MouseEnter, AddressOf a
             AddHandler EventIcon(i).MouseLeave, AddressOf b
             Me.Controls.Add(EventIcon(i))
 
-            'If TypeCount(i) > 0 Then
-            j += 1
-            'End If
+
         Next
     End Sub
-    Sub ShowEventsCount() Handles Me.Click
+    Sub ShowEventsCount()
         While Me.Controls.Count > StartControlCounts
             Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
         End While
