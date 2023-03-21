@@ -1,16 +1,16 @@
-﻿Imports System.Drawing.Text
-Imports System.IO
+﻿Imports System.Drawing.Imaging
+Imports System.Drawing.Text
+Imports System.Globalization
 Imports System.Runtime.InteropServices
-Imports System.Security.Cryptography
-Imports System.Threading
+#Disable Warning BC42025 ' 通过实例访问共享成员、常量成员、枚举成员或嵌套类型
 
 Public Class Form1
 
-    ReadOnly SoundEvents() As String = My.Resources.Files.Sound.Split(vbCrLf)
-    ReadOnly RailEvents() As String = My.Resources.Files.Rail.Split(vbCrLf)
-    ReadOnly MotionEvents() As String = My.Resources.Files.Motion.Split(vbCrLf)
-    ReadOnly SpriteEvents() As String = My.Resources.Files.Sprite.Split(vbCrLf)
-    ReadOnly RoomEvents() As String = My.Resources.Files.Room.Split(vbCrLf)
+    ReadOnly SoundEvents() As String = My.Resources.ResourceData.Sound.Split(vbCrLf)
+    ReadOnly RailEvents() As String = My.Resources.ResourceData.Rail.Split(vbCrLf)
+    ReadOnly MotionEvents() As String = My.Resources.ResourceData.Motion.Split(vbCrLf)
+    ReadOnly SpriteEvents() As String = My.Resources.ResourceData.Sprite.Split(vbCrLf)
+    ReadOnly RoomEvents() As String = My.Resources.ResourceData.Room.Split(vbCrLf)
 
     Dim SoundEventCount(SoundEvents.Length) As UInt64
     Dim RailEventCount(RailEvents.Length) As UInt64
@@ -22,11 +22,22 @@ Public Class Form1
     Dim RdlevelFile As String = ""
     Dim temp As String = "\%RDLevelUnzip%"
 
-    ReadOnly MotionEventsImage As Image = My.Resources.Files.events
     Dim RDFont As Font
 
+    ReadOnly IconLeft As UInt16 = 1
+    ReadOnly IconSet As Rectangle = New Rectangle(
+        New Point(14, 14),
+        New Point(56, 28))
+    ReadOnly IconMag As UInt16 = 1
+
+    Dim EventTypeIndex As UInt16 = 2
+
+    Dim StartControlCounts As UInt16 = 0
+
+    ReadOnly Raw As UInt16 = 6
+
     Sub ChangeFont()
-        Dim fontData As Byte() = My.Resources.Files.RDLatinFontPoint
+        Dim fontData As Byte() = My.Resources.ResourceData.RDLatinFontPoint
         Dim fontCollection As New PrivateFontCollection '创建字体集合
         fontCollection.AddMemoryFont(Marshal.UnsafeAddrOfPinnedArrayElement(fontData, 0), fontData.Length) '将字体字节数组添加到字体集合中
         RDFont = New Font(fontCollection.Families(0), 12)
@@ -38,33 +49,200 @@ Public Class Form1
         End If
         CountingEvents()
         ChangeFont()
+        StartControlCounts = Me.Controls.Count
         ShowEventsCount()
     End Sub
+    Function ReturnData(Index As UInt16, Type As UInt16)
+        Select Case EventTypeIndex
+            Case 0
+                Select Case Type
+                    Case 0
+                        Return SoundEvents(Index)
+                    Case 1
+                        Return SoundEventCount(Index)
+                End Select
+            Case 1
+                Select Case Type
+                    Case 0
+                        Return RailEvents(Index)
+                    Case 1
+                        Return RailEventCount(Index)
+                End Select
+            Case 2
+                Select Case Type
+                    Case 0
+                        Return MotionEvents(Index)
+                    Case 1
+                        Return MotionEventCount(Index)
+                End Select
+            Case 3
+                Select Case Type
+                    Case 0
+                        Return SpriteEvents(Index)
+                    Case 1
+                        Return SpriteEventCount(Index)
+                End Select
+            Case 4
+                Select Case Type
+                    Case 0
+                        Return RoomEvents(Index)
+                    Case 1
+                        Return RoomEventCount(Index)
+                End Select
+        End Select
+        Return Nothing
+    End Function
+    Enum SCType
+        None
+        Selected
+        Inactive
+        InactiveSelected
+    End Enum
+    Enum EType
+        Sound
+        Rail
+        Motion
+        Sprite
+        Room
+    End Enum
+    Function ReturnImage(i As EType, SCType As SCType) As Image
+        Dim icon As Bitmap = Nothing
+        Dim res As My.Resources.ResourceData
+        Select Case EventTypeIndex
+            Case EType.Sound
+                Select Case SCType
+                    Case SCType.None
+                        icon = res.sounds
+                    Case SCType.Inactive
+                        icon = res.soundsInactive
+                    Case SCType.Selected
+                        icon = res.soundsSelected
+                    Case SCType.InactiveSelected
+                        icon = res.soundsInactiveSelected
+                End Select
+            Case EType.Rail
+                Select Case SCType
+                    Case SCType.None
+                        icon = res.rails
+                    Case SCType.Inactive
+                        icon = res.railsInactive
+                    Case SCType.Selected
+                        icon = res.railsSelected
+                    Case SCType.InactiveSelected
+                        icon = res.railsInactiveSelected
+                End Select
+            Case EType.Motion
+                Select Case SCType
+                    Case SCType.None
+                        icon = res.motions
+                    Case SCType.Inactive
+                        icon = res.motionsInactive
+                    Case SCType.Selected
+                        icon = res.motionsSelected
+                    Case SCType.InactiveSelected
+                        icon = res.motionsInactiveSelected
+                End Select
+            Case EType.Sprite
+                Select Case SCType
+                    Case SCType.None
+                        icon = res.sprites
+                    Case SCType.Inactive
+                        icon = res.spritesInactive
+                    Case SCType.Selected
+                        icon = res.spritesSelected
+                    Case SCType.InactiveSelected
+                        icon = res.spritesInactiveSelected
+                End Select
+            Case EType.Room
+                Select Case SCType
+                    Case SCType.None
+                        icon = res.rooms
+                    Case SCType.Inactive
+                        icon = res.roomsInactive
+                    Case SCType.Selected
+                        icon = res.roomsSelected
+                    Case SCType.InactiveSelected
+                        icon = res.roomsInactiveSelected
+                End Select
+        End Select
+        Dim EventIconImage As Bitmap
+        EventIconImage = icon.Clone(
+                New Rectangle(
+                    (i Mod (icon.Width / IconSet.Width)) * IconSet.Width,
+                    (i \ (icon.Width / IconSet.Width)) * IconSet.Height,
+                    IconSet.Width,
+                    IconSet.Height
+                ), icon.PixelFormat)
+        Return EventIconImage
+    End Function
+    Sub a(sender As PictureBox, e As EventArgs)
+
+        Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
+        Me.Text = $"{Index}, {ReturnData(Index, 0)}={ReturnData(Index, 1)}"
+        If ReturnData(Index, 1) > 0 Then
+            sender.BackgroundImage = ReturnImage(Index, SCType.Selected)
+        Else
+            sender.BackgroundImage = ReturnImage(Index, SCType.InactiveSelected)
+        End If
+    End Sub
+
+    Sub b(sender As PictureBox, e As EventArgs)
+        Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
+        If ReturnData(Index, 1) > 0 Then
+            sender.BackgroundImage = ReturnImage(Index, SCType.None)
+        Else
+            sender.BackgroundImage = ReturnImage(Index, SCType.Inactive)
+        End If
+    End Sub
+
+    Sub CreateEventsIcon(Type As String(), TypeCount As UInt64(), Icon As Bitmap)
+
+        Dim EventIcon(Type.Length) As PictureBox
+        Dim j As UInt16 = 0
+        For i As UInt16 = 0 To Type.Length - 1
+            EventIcon(i) = New PictureBox With {
+                .Location = New Point(
+                    IconSet.Left + (j \ Raw) * IconSet.Width * IconMag,
+                    IconSet.Top + (j Mod Raw) * IconSet.Height * IconMag),
+                .Size = New Point(IconSet.Width * IconMag, IconSet.Height * IconMag),
+                .Text = $"{Type(i)}={TypeCount(i)}",
+                .Font = RDFont,
+                .BackColor = Color.Transparent,
+                .BackgroundImage = ReturnImage(i, SCType.None),
+                .BackgroundImageLayout = ImageLayout.Stretch,
+                .Name = Type(i)
+            }
+            If TypeCount(i) > 0 Then
+                EventIcon(i).BackgroundImage = ReturnImage(i, SCType.Inactive)
+            End If
+            AddHandler EventIcon(i).MouseEnter, AddressOf a
+            AddHandler EventIcon(i).MouseLeave, AddressOf b
+            Me.Controls.Add(EventIcon(i))
+
+            'If TypeCount(i) > 0 Then
+            j += 1
+            'End If
+        Next
+    End Sub
     Sub ShowEventsCount() Handles Me.Click
+        While Me.Controls.Count > StartControlCounts
+            Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
+        End While
 
-        Me.CreateGraphics.DrawImage(MotionEventsImage,
-                                    New Rectangle(New Point(15, 15), New Point(28, 28)))
+        Select Case EventTypeIndex
+            Case 0
+                CreateEventsIcon(SoundEvents, SoundEventCount, My.Resources.ResourceData.sounds)
+            Case 1
+                CreateEventsIcon(RailEvents, RailEventCount, My.Resources.ResourceData.rails)
+            Case 2
+                CreateEventsIcon(MotionEvents, MotionEventCount, My.Resources.ResourceData.motions)
+            Case 3
+                CreateEventsIcon(SpriteEvents, SpriteEventCount, My.Resources.ResourceData.sprites)
+            Case 4
+                CreateEventsIcon(RoomEvents, RoomEventCount, My.Resources.ResourceData.rooms)
+            Case Else
 
-        For i = 0 To SoundEvents.Length - 1
-            Me.CreateGraphics.DrawString($"{SoundEventCount(i)}", RDFont, New SolidBrush(Color.Red),
-                                         New PointF(0, i * 22))
-        Next
-        For i = 0 To RailEvents.Length - 1
-            Me.CreateGraphics.DrawString($"{RailEventCount(i)}", RDFont, New SolidBrush(Color.Cyan),
-                                         New PointF(40, i * 22))
-        Next
-        For i = 0 To MotionEvents.Length - 1
-            Me.CreateGraphics.DrawString($"{MotionEventCount(i)}", RDFont, New SolidBrush(Color.Purple),
-                                         New PointF(80, i * 22))
-        Next
-        For i = 0 To SpriteEvents.Length - 1
-            Me.CreateGraphics.DrawString($"{SpriteEventCount(i)}", RDFont, New SolidBrush(Color.Green),
-                                         New PointF(120, i * 22))
-        Next
-        For i = 0 To RoomEvents.Length - 1
-            Me.CreateGraphics.DrawString($"{RoomEventCount(i)}", RDFont, New SolidBrush(Color.Yellow),
-                                         New PointF(160, i * 22))
-        Next
+        End Select
 
     End Sub
     ''' <summary>

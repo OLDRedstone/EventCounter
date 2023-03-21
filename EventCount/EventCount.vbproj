@@ -25,10 +25,10 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="Files.Designer.vb">
+    <Compile Update="ResourceData.Designer.vb">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Files.resx</DependentUpon>
+      <DependentUpon>ResourceData.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -38,10 +38,10 @@
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Files.resx">
+    <EmbeddedResource Update="ResourceData.resx">
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Files.Designer.vb</LastGenOutput>
+      <LastGenOutput>ResourceData.Designer.vb</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
