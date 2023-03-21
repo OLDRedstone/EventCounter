@@ -34,10 +34,13 @@ Partial Class Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 17.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(344, 602)
+        Me.AutoScroll = True
+        Me.BackColor = System.Drawing.Color.FromArgb(CType(CType(44, Byte), Integer), CType(CType(44, Byte), Integer), CType(CType(44, Byte), Integer))
+        Me.ClientSize = New System.Drawing.Size(628, 377)
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
         Me.Name = "Form1"
-        Me.Text = "Form1"
-        Me.TransparencyKey = System.Drawing.Color.Black
+        Me.TransparencyKey = System.Drawing.Color.Coral
         Me.ResumeLayout(False)
 
     End Sub
