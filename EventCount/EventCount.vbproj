@@ -9,6 +9,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="IntroductionForm.Designer.vb" />
+    <Compile Remove="IntroductionForm.vb" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="IntroductionForm.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Import Include="System.Data" />
     <Import Include="System.Drawing" />
     <Import Include="System.Windows.Forms" />
@@ -25,10 +34,15 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="Files.Designer.vb">
+    <Compile Update="zh.Designer.vb">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>Files.resx</DependentUpon>
+      <DependentUpon>zh.resx</DependentUpon>
+    </Compile>
+    <Compile Update="ResourceData.Designer.vb">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ResourceData.resx</DependentUpon>
     </Compile>
   </ItemGroup>
 
@@ -38,10 +52,15 @@
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Update="Files.resx">
+    <EmbeddedResource Update="zh.resx">
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Files.Designer.vb</LastGenOutput>
+      <LastGenOutput>zh.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="ResourceData.resx">
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ResourceData.Designer.vb</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 
