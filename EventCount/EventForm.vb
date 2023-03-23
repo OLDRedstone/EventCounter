@@ -5,7 +5,7 @@ Imports System.Runtime.InteropServices
 
 Public Class EventForm
 
-    ReadOnly IconPath = $"{Application.StartupPath}\Icons\"
+    ReadOnly IconPath = $"{Application.StartupPath}\Assets\"
     ReadOnly KeyString() As String = System.IO.File.OpenText($"{IconPath}Keys.txt").ReadToEnd.Split(vbCrLf)
 
     Dim FilePath As String = ""
@@ -14,11 +14,10 @@ Public Class EventForm
 
     Dim RDFont As Font
 
-    ReadOnly IconLeft As UInt16 = 1
     Dim IconSet As Rectangle = New Rectangle(
         New Point(48, 34),
         New Point(56, 28))
-    ReadOnly IconMag As UInt16 = 2
+    ReadOnly IconMag As UInt16 = 1
 
     Dim EventTypeIndex As EType = EType.Sound
 
@@ -29,13 +28,19 @@ Public Class EventForm
     ReadOnly Raw As UInt16 = 4
 
     Dim Cou = New Dictionary(Of String, UInt64)
+    Dim EveType = New Dictionary(Of String, String)
     Dim AllLang = New Dictionary(Of LangTable, String)
     Dim Assets = New Dictionary(Of String, IconTypes)
-    Dim CurrentLanguage As LangType = LangType.en
+    Dim SelEvent = New Dictionary(Of String, Boolean)
+
+    Dim CurrentLanguage As LangType = LangType.zh
+
+    Dim Tick As Double = 0
+    Dim StartHeight, EndHeight As Int16
 
 
     ''' <summary>
-    ''' 图标种类,但是结构体
+    ''' 图标选择情况,但是结构体
     ''' </summary>
     Structure IconTypes
         Dim None As Image
@@ -129,6 +134,14 @@ Public Class EventForm
     End Sub
 
 
+    Sub ReadType()
+        For Each K In KeyString
+            Dim E = K.Split(vbTab)
+            EveType.add(E(0), E(1))
+        Next
+    End Sub
+
+
     ''' <summary>
     ''' 窗体加载
     ''' </summary>
@@ -140,6 +153,7 @@ Public Class EventForm
         End If
         CountingEvents()
         ReadLang()
+        ReadType()
         ReadImage()
         ChangeFont()
         StartControlCounts = Me.Controls.Count
@@ -176,13 +190,32 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
-        Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
-        InformationLabel.Text = $"{AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLanguage})}  {Cou(sender.Name)}"
+        InformationLabel.Text = $"{Cou(sender.Name)} * {AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLanguage})}"
+        For Each I In SelEvent
+            InformationLabel.Text += $"{vbCrLf}{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}"
+        Next
         If Cou(sender.Name) Then
             sender.BackgroundImage = ReturnImage(sender.Name, SCType.Selected)
         Else
             sender.BackgroundImage = ReturnImage(sender.Name, SCType.InactiveSelected)
         End If
+        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
+    End Sub
+
+
+    ''' <summary>
+    ''' 鼠标点击图标事件
+    ''' </summary>
+    ''' <param name="sender">图标控件</param>
+    ''' <param name="e">控件属性</param>
+    Sub MouseClickTheIcon(sender As PictureBox, e As EventArgs)
+        If Cou(sender.Name) And SelEvent.ContainsKey(sender.Name) = False Then
+            SelEvent.add(sender.Name, Cou(sender.Name))
+        Else
+            SelEvent.remove(sender.Name)
+        End If
+        MouseEnterTheIcon(sender, e)
+        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
     End Sub
 
 
@@ -192,13 +225,20 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
-        InformationLabel.Text = ""
-        Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
-        If Cou(sender.Name) Then
-            sender.BackgroundImage = ReturnImage(sender.Name, SCType.None)
-        Else
-            sender.BackgroundImage = ReturnImage(sender.Name, SCType.Inactive)
+        Dim Str As String = ""
+        For Each I In SelEvent
+            Str += $"{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}{vbCrLf}"
+        Next
+        InformationLabel.Text = Str
+        InformationLabel.CreateGraphics.Clear(InformationLabel.BackColor)
+        If SelEvent.ContainsKey(sender.Name) = False Then
+            If Cou(sender.Name) Then
+                sender.BackgroundImage = ReturnImage(sender.Name, SCType.None)
+            Else
+                sender.BackgroundImage = ReturnImage(sender.Name, SCType.Inactive)
+            End If
         End If
+        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
     End Sub
 
 
@@ -210,7 +250,6 @@ Public Class EventForm
         Dim i = 0
         For Each K In KeyString
             If K.Split(vbTab)(1) = ET.ToString Then
-                Debug.Print(StartControlCounts)
                 Dim NewIcon = New PictureBox With {
                     .Location = New Point(
                         IconSet.Left + (i \ Raw) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
@@ -220,15 +259,19 @@ Public Class EventForm
                     .Name = K.Split(vbTab)(0)
                 }
 
-
-                If Cou(NewIcon.Name) = 0 Then
-                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Inactive)
+                If SelEvent.ContainsKey(NewIcon.Name) = False Then
+                    If Cou(NewIcon.Name) = 0 Then
+                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Inactive)
+                    Else
+                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.None)
+                    End If
                 Else
-                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.None)
+                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Selected)
                 End If
                 NewIcon.Size = ReturnImage(NewIcon.Name, SCType.None).Size
 
                 AddHandler NewIcon.MouseEnter, AddressOf MouseEnterTheIcon
+                AddHandler NewIcon.Click, AddressOf MouseClickTheIcon
                 AddHandler NewIcon.MouseLeave, AddressOf MouseLeaveTheIcon
                 Me.Controls.Add(NewIcon)
 
@@ -316,7 +359,7 @@ Public Class EventForm
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Sub Renew(sender As Object, e As MouseEventArgs) Handles MyBase.Click
+    Sub Renew(sender As Object, e As MouseEventArgs)
         Dim TitleImage = My.Resources.ResourceData.Title
         TitleBox.BackgroundImage = TitleImage.Clone(
             New Rectangle(EventTypeIndex * 48, 0, 48, 152),
@@ -350,4 +393,26 @@ Public Class EventForm
     End Sub
 
 
+    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
+        If Tick < 1 Then
+            Me.Height = StartHeight + (EndHeight - StartHeight) * Ease(Tick)
+            Tick += 0.01
+            Debug.Print(Tick)
+        Else Timer1.Stop()
+            Tick = 0
+        End If
+    End Sub
+
+
+    Function Ease(x As Double) As Double
+        x = Math.Clamp(x, 0, 1)
+        Return IIf(x = 1, 1, 1 - 2 ^ (-10 * x))
+    End Function
+
+    Sub CallHeightChange(Height As UInt16)
+        StartHeight = Me.Height
+        EndHeight = Height
+        Tick = 0
+        Timer1.Start()
+    End Sub
 End Class

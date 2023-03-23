@@ -22,9 +22,12 @@ Partial Class EventForm
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        components = New ComponentModel.Container()
+        Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(EventForm))
         OpenLevel = New OpenFileDialog()
         TitleBox = New PictureBox()
         InformationLabel = New Label()
+        Timer1 = New Timer(components)
         CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -45,9 +48,13 @@ Partial Class EventForm
         InformationLabel.ForeColor = Color.White
         InformationLabel.Location = New Point(0, 155)
         InformationLabel.Name = "InformationLabel"
-        InformationLabel.Size = New Size(46, 17)
+        InformationLabel.Size = New Size(0, 17)
         InformationLabel.TabIndex = 1
-        InformationLabel.Text = "Label1"' 
+        ' 
+        ' Timer1
+        ' 
+        Timer1.Interval = 10
+        ' 
         ' EventForm
         ' 
         AutoScaleDimensions = New SizeF(96F, 96F)
@@ -55,11 +62,12 @@ Partial Class EventForm
         BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
         BackgroundImage = My.Resources.Resources.Back
         BackgroundImageLayout = ImageLayout.None
-        ClientSize = New Size(302, 184)
+        ClientSize = New Size(302, 187)
         Controls.Add(InformationLabel)
         Controls.Add(TitleBox)
         DoubleBuffered = True
         FormBorderStyle = FormBorderStyle.Fixed3D
+        Icon = CType(resources.GetObject("$this.Icon"), Icon)
         MaximizeBox = False
         Name = "EventForm"
         TransparencyKey = Color.Coral
@@ -71,4 +79,5 @@ Partial Class EventForm
     Friend WithEvents OpenLevel As OpenFileDialog
     Friend WithEvents TitleBox As PictureBox
     Friend WithEvents InformationLabel As Label
+    Friend WithEvents Timer1 As Timer
 End Class
