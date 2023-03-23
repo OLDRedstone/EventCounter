@@ -26,7 +26,7 @@
 * 事件图标嵌入问题:~暂不能动态访问resx，所以想着用GIF来代替~ 用精灵图解决了
 * 完成了UI的图标绘制
 * **感谢圈师傅(@LittleCircleOO)以及其他群友对这个项目的帮助与鼓励！**
-* 文件读取方式大改
+* 文件读取方式大改，所需文件上传暂缓
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
