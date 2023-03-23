@@ -2,26 +2,15 @@
 Imports System.Drawing.Text
 Imports System.Globalization
 Imports System.Runtime.InteropServices
-#Disable Warning BC42025 ' 通过实例访问共享成员、常量成员、枚举成员或嵌套类型
 
 Public Class EventForm
 
-    ReadOnly SoundEvents() As String = My.Resources.ResourceData.Sound.Split(vbCrLf)
-    ReadOnly RailEvents() As String = My.Resources.ResourceData.Rail.Split(vbCrLf)
-    ReadOnly MotionEvents() As String = My.Resources.ResourceData.Motion.Split(vbCrLf)
-    ReadOnly SpriteEvents() As String = My.Resources.ResourceData.Sprite.Split(vbCrLf)
-    ReadOnly RoomEvents() As String = My.Resources.ResourceData.Room.Split(vbCrLf)
-
-
-    Dim SoundEventCount(SoundEvents.Length) As UInt64
-    Dim RailEventCount(RailEvents.Length) As UInt64
-    Dim MotionEventCount(MotionEvents.Length) As UInt64
-    Dim SpriteEventCount(SpriteEvents.Length) As UInt64
-    Dim RoomEventCount(RoomEvents.Length) As UInt64
+    ReadOnly IconPath = $"{Application.StartupPath}\Icons\"
+    ReadOnly KeyString() As String = System.IO.File.OpenText($"{IconPath}Keys.txt").ReadToEnd.Split(vbCrLf)
 
     Dim FilePath As String = ""
     Dim RdlevelFile As String = ""
-    Dim temp As String = "\%RDLevelUnzip%"
+    ReadOnly temp As String = "\%RDLevelUnzip%"
 
     Dim RDFont As Font
 
@@ -29,7 +18,7 @@ Public Class EventForm
     Dim IconSet As Rectangle = New Rectangle(
         New Point(48, 34),
         New Point(56, 28))
-    ReadOnly IconMag As UInt16 = 1
+    ReadOnly IconMag As UInt16 = 2
 
     Dim EventTypeIndex As EType = EType.Sound
 
@@ -40,12 +29,66 @@ Public Class EventForm
     ReadOnly Raw As UInt16 = 4
 
     Dim Cou = New Dictionary(Of String, UInt64)
-    Dim Lan = New Dictionary(Of String, String)
-    Dim CurrentLanguage As Language = Language.zh
-    Enum Language
+    Dim AllLang = New Dictionary(Of LangTable, String)
+    Dim Assets = New Dictionary(Of String, IconTypes)
+    Dim CurrentLanguage As LangType = LangType.en
+
+
+    ''' <summary>
+    ''' 图标种类,但是结构体
+    ''' </summary>
+    Structure IconTypes
+        Dim None As Image
+        Dim Selected As Image
+        Dim Inactive As Image
+        Dim InactiveSelected As Image
+    End Structure
+
+
+    ''' <summary>
+    ''' 语言表格
+    ''' </summary>
+    Structure LangTable
+        Dim ID As String
+        Dim Lang As LangType
+    End Structure
+
+
+    ''' <summary>
+    ''' 语言
+    ''' </summary>
+    Enum LangType
         zh
         en
     End Enum
+
+
+    ''' <summary>
+    ''' 图标状态
+    ''' </summary>
+    Enum SCType
+        None
+        Selected
+        Inactive
+        InactiveSelected
+    End Enum
+
+
+    ''' <summary>
+    ''' 全局事件类型环境
+    ''' </summary>
+    Enum EType
+        Sound
+        Rail
+        Motion
+        Sprite
+        Room
+    End Enum
+
+
+    ''' <summary>
+    ''' 字体更换
+    ''' </summary>
     Sub ChangeFont()
         Dim fontData As Byte() = My.Resources.ResourceData.SourceHanSans_Bold
         Dim fontCollection As New PrivateFontCollection '创建字体集合
@@ -54,280 +97,169 @@ Public Class EventForm
         InformationLabel.Font = RDFont
     End Sub
 
-    Sub ReadToKey()
-        Dim SoundLan() As String = Nothing
-        Dim RailLan() As String = Nothing
-        Dim MotionLan() As String = Nothing
-        Dim SpriteLan() As String = Nothing
-        Dim roomLan() As String = Nothing
-        Select Case CurrentLanguage
-            Case Language.zh
-                SoundLan = My.Resources.zh.Sound.Split(vbCrLf)
-                RailLan = My.Resources.zh.Rail.Split(vbCrLf)
-                MotionLan = My.Resources.zh.Motion.Split(vbCrLf)
-                SpriteLan = My.Resources.zh.Sprite.Split(vbCrLf)
-                roomLan = My.Resources.zh.Room.Split(vbCrLf)
-            Case Language.en
 
-            Case Else
-
-        End Select
-        For i = 0 To SoundEvents.Length - 1
-            Lan.Add(SoundEvents(i), SoundLan(i))
-        Next
-        For i = 0 To RailEvents.Length - 1
-            Lan.Add(RailEvents(i), RailLan(i))
-        Next
-        For i = 0 To MotionEvents.Length - 1
-            Lan.Add(MotionEvents(i), MotionLan(i))
-        Next
-        For i = 0 To SpriteEvents.Length - 1
-            Lan.Add(SpriteEvents(i), SpriteLan(i))
-        Next
-        For i = 0 To RoomEvents.Length - 1
-            Lan.Add(RoomEvents(i), roomLan(i))
-        Next
-
-
-        For i = 0 To SoundEvents.Length - 1
-            Cou.Add(SoundEvents(i), SoundEventCount(i))
-        Next
-        For i = 0 To RailEvents.Length - 1
-            Cou.Add(RailEvents(i), RailEventCount(i))
-        Next
-        For i = 0 To MotionEvents.Length - 1
-            Cou.Add(MotionEvents(i), MotionEventCount(i))
-        Next
-        For i = 0 To SpriteEvents.Length - 1
-            Cou.Add(SpriteEvents(i), SpriteEventCount(i))
-        Next
-        For i = 0 To RoomEvents.Length - 1
-            Cou.Add(RoomEvents(i), RoomEventCount(i))
+    ''' <summary>
+    ''' 读取翻译
+    ''' </summary>
+    Sub ReadLang()
+        For lang = 0 To 1
+            For Each K In KeyString
+                Dim e() = K.Split(vbTab)
+                AllLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(CurrentLanguage + 2))
+            Next
         Next
     End Sub
 
+
+    ''' <summary>
+    ''' 读取图片
+    ''' </summary>
+    Sub ReadImage()
+        For Each K In KeyString
+            Dim E = K.Split(vbTab)(0)
+            Assets.add(E,
+                    New IconTypes With {
+                    .None = Image.FromFile($"{IconPath}{E}None.png"),
+                    .Selected = Image.FromFile($"{IconPath}{E}Selected.png"),
+                    .Inactive = Image.FromFile($"{IconPath}{E}Inactive.png"),
+                    .InactiveSelected = Image.FromFile($"{IconPath}{E}InactiveSelected.png")
+                    }
+            )
+        Next
+    End Sub
+
+
+    ''' <summary>
+    ''' 窗体加载
+    ''' </summary>
+    ''' <param name="sender">控件</param>
+    ''' <param name="e">控件参数</param>
     Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         If OpenLevel.ShowDialog() <> DialogResult.OK Then
             End
         End If
         CountingEvents()
-        ReadToKey()
+        ReadLang()
+        ReadImage()
         ChangeFont()
         StartControlCounts = Me.Controls.Count
         ShowEventsCount()
         Renew(Nothing, Nothing)
     End Sub
-    Function ReturnData(Index As UInt16, Type As UInt16)
-        Select Case EventTypeIndex
-            Case 0
-                Select Case Type
-                    Case 0
-                        Return SoundEvents(Index)
-                    Case 1
-                        Return SoundEventCount(Index)
-                End Select
-            Case 1
-                Select Case Type
-                    Case 0
-                        Return RailEvents(Index)
-                    Case 1
-                        Return RailEventCount(Index)
-                End Select
-            Case 2
-                Select Case Type
-                    Case 0
-                        Return MotionEvents(Index)
-                    Case 1
-                        Return MotionEventCount(Index)
-                End Select
-            Case 3
-                Select Case Type
-                    Case 0
-                        Return SpriteEvents(Index)
-                    Case 1
-                        Return SpriteEventCount(Index)
-                End Select
-            Case 4
-                Select Case Type
-                    Case 0
-                        Return RoomEvents(Index)
-                    Case 1
-                        Return RoomEventCount(Index)
-                End Select
+
+
+    ''' <summary>
+    ''' 返回图标
+    ''' </summary>
+    ''' <param name="KeyWord">索引词</param>
+    ''' <param name="SCType">图标状态</param>
+    ''' <returns></returns>
+    Function ReturnImage(KeyWord As String, SCType As SCType) As Image
+        Dim Icon As IconTypes = Assets(KeyWord)
+        Select Case SCType
+            Case SCType.None
+                Return Icon.None
+            Case SCType.Selected
+                Return Icon.Selected
+            Case SCType.Inactive
+                Return Icon.Inactive
+            Case SCType.InactiveSelected
+                Return Icon.InactiveSelected
         End Select
         Return Nothing
     End Function
-    Enum SCType
-        None
-        Selected
-        Inactive
-        InactiveSelected
-    End Enum
-    Enum EType
-        Sound
-        Rail
-        Motion
-        Sprite
-        Room
-    End Enum
-    Function ReturnImage(i As EType, SCType As SCType) As Image
-        Dim icon As Bitmap = Nothing
-        Dim res As My.Resources.ResourceData
-        Select Case EventTypeIndex
-            Case EType.Sound
-                Select Case SCType
-                    Case SCType.None
-                        icon = res.sounds
-                    Case SCType.Inactive
-                        icon = res.soundsInactive
-                    Case SCType.Selected
-                        icon = res.soundsSelected
-                    Case SCType.InactiveSelected
-                        icon = res.soundsInactiveSelected
-                End Select
-            Case EType.Rail
-                Select Case SCType
-                    Case SCType.None
-                        icon = res.rails
-                    Case SCType.Inactive
-                        icon = res.railsInactive
-                    Case SCType.Selected
-                        icon = res.railsSelected
-                    Case SCType.InactiveSelected
-                        icon = res.railsInactiveSelected
-                End Select
-            Case EType.Motion
-                Select Case SCType
-                    Case SCType.None
-                        icon = res.motions
-                    Case SCType.Inactive
-                        icon = res.motionsInactive
-                    Case SCType.Selected
-                        icon = res.motionsSelected
-                    Case SCType.InactiveSelected
-                        icon = res.motionsInactiveSelected
-                End Select
-            Case EType.Sprite
-                Select Case SCType
-                    Case SCType.None
-                        icon = res.sprites
-                    Case SCType.Inactive
-                        icon = res.spritesInactive
-                    Case SCType.Selected
-                        icon = res.spritesSelected
-                    Case SCType.InactiveSelected
-                        icon = res.spritesInactiveSelected
-                End Select
-            Case EType.Room
-                Select Case SCType
-                    Case SCType.None
-                        icon = res.rooms
-                    Case SCType.Inactive
-                        icon = res.roomsInactive
-                    Case SCType.Selected
-                        icon = res.roomsSelected
-                    Case SCType.InactiveSelected
-                        icon = res.roomsInactiveSelected
-                End Select
-        End Select
-        Dim EventIconImage As Bitmap
-        EventIconImage = icon.Clone(
-                New Rectangle(
-                    (i Mod (icon.Width / IconSet.Width)) * IconSet.Width,
-                    (i \ (icon.Width / IconSet.Width)) * IconSet.Height,
-                    IconSet.Width,
-                    IconSet.Height
-                ), icon.PixelFormat)
-        Return EventIconImage
-    End Function
+
+
+    ''' <summary>
+    ''' 鼠标进入图标事件
+    ''' </summary>
+    ''' <param name="sender">图标控件</param>
+    ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
         Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
-        InformationLabel.Text = $"{Lan(sender.Name)}  {Cou(sender.Name)}"
-        If ReturnData(Index, 1) Then
-            sender.BackgroundImage = ReturnImage(Index, SCType.Selected)
+        InformationLabel.Text = $"{AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLanguage})}  {Cou(sender.Name)}"
+        If Cou(sender.Name) Then
+            sender.BackgroundImage = ReturnImage(sender.Name, SCType.Selected)
         Else
-            sender.BackgroundImage = ReturnImage(Index, SCType.InactiveSelected)
+            sender.BackgroundImage = ReturnImage(sender.Name, SCType.InactiveSelected)
         End If
     End Sub
+
+
+    ''' <summary>
+    ''' 鼠标离开图标事件
+    ''' </summary>
+    ''' <param name="sender">图标控件</param>
+    ''' <param name="e">控件属性</param>
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
+        InformationLabel.Text = ""
         Dim Index As UInt16 = Controls.IndexOf(sender) - StartControlCounts
-        If ReturnData(Index, 1) Then
-            sender.BackgroundImage = ReturnImage(Index, SCType.None)
+        If Cou(sender.Name) Then
+            sender.BackgroundImage = ReturnImage(sender.Name, SCType.None)
         Else
-            sender.BackgroundImage = ReturnImage(Index, SCType.Inactive)
+            sender.BackgroundImage = ReturnImage(sender.Name, SCType.Inactive)
         End If
     End Sub
 
-    Sub CreateEventsIcon(Type As String(), TypeCount As UInt64(), Icon As Bitmap)
 
-        Dim EIcon(Type.Length) As PictureBox
-        Dim j As UInt16 = 0
-        For i As UInt16 = 0 To Type.Length - 1
-            EIcon(i) = New PictureBox With {
-                .Location = New Point(
-                    IconSet.Left + (i \ Raw) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
-                    IconSet.Top + (i Mod Raw) * IconSet.Height * IconMag),
-                .Size = New Point(
-                     IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
-                    IconSet.Height * IconMag),
-                .Font = RDFont,
-                .BackColor = Color.Transparent,
-                .BackgroundImage = ReturnImage(i, SCType.None),
-                .Name = Type(i)
-            }
+    ''' <summary>
+    ''' 创建图标控件
+    ''' </summary>
+    ''' <param name="ET">全局事件类型</param>
+    Sub CreateEventsIcon(ET As EType)
+        Dim i = 0
+        For Each K In KeyString
+            If K.Split(vbTab)(1) = ET.ToString Then
+                Debug.Print(StartControlCounts)
+                Dim NewIcon = New PictureBox With {
+                    .Location = New Point(
+                        IconSet.Left + (i \ Raw) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
+                        IconSet.Top + (i Mod Raw) * IconSet.Height * IconMag),
+                    .Font = RDFont,
+                    .BackColor = Color.Transparent,
+                    .Name = K.Split(vbTab)(0)
+                }
 
 
-            If Cou(EIcon(i).Name) = 0 Then
-                EIcon(i).BackgroundImage = ReturnImage(i, SCType.Inactive)
+                If Cou(NewIcon.Name) = 0 Then
+                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Inactive)
+                Else
+                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.None)
+                End If
+                NewIcon.Size = ReturnImage(NewIcon.Name, SCType.None).Size
+
+                AddHandler NewIcon.MouseEnter, AddressOf MouseEnterTheIcon
+                AddHandler NewIcon.MouseLeave, AddressOf MouseLeaveTheIcon
+                Me.Controls.Add(NewIcon)
+
+                i += 1
             End If
-
-            AddHandler EIcon(i).MouseEnter, AddressOf MouseEnterTheIcon
-            AddHandler EIcon(i).MouseLeave, AddressOf MouseLeaveTheIcon
-            Me.Controls.Add(EIcon(i))
-
         Next
     End Sub
+
+
+    ''' <summary>
+    ''' 刷新图标控件
+    ''' </summary>
     Sub ShowEventsCount()
         While Me.Controls.Count > StartControlCounts
             Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
         End While
-
-        Select Case EventTypeIndex
-            Case 0
-                CreateEventsIcon(SoundEvents, SoundEventCount, My.Resources.ResourceData.sounds)
-            Case 1
-                CreateEventsIcon(RailEvents, RailEventCount, My.Resources.ResourceData.rails)
-            Case 2
-                CreateEventsIcon(MotionEvents, MotionEventCount, My.Resources.ResourceData.motions)
-            Case 3
-                CreateEventsIcon(SpriteEvents, SpriteEventCount, My.Resources.ResourceData.sprites)
-            Case 4
-                CreateEventsIcon(RoomEvents, RoomEventCount, My.Resources.ResourceData.rooms)
-            Case Else
-
-        End Select
-
+        CreateEventsIcon(EventTypeIndex)
     End Sub
+
+
     ''' <summary>
     ''' 为数组赋值
     ''' </summary>
     Sub CountingEvents()
-        For i = 0 To SoundEvents.Length - 1
-            SoundEventCount(i) = CountingTexts(RdlevelFile, $"""type"": ""{SoundEvents(i)}""")
-        Next
-        For i = 0 To RailEvents.Length - 1
-            RailEventCount(i) = CountingTexts(RdlevelFile, $"""type"": ""{RailEvents(i)}""")
-        Next
-        For i = 0 To MotionEvents.Length - 1
-            MotionEventCount(i) = CountingTexts(RdlevelFile, $"""type"": ""{MotionEvents(i)}""")
-        Next
-        For i = 0 To SpriteEvents.Length - 1
-            SpriteEventCount(i) = CountingTexts(RdlevelFile, $"""type"": ""{SpriteEvents(i)}""")
-        Next
-        For i = 0 To RoomEvents.Length - 1
-            RoomEventCount(i) = CountingTexts(RdlevelFile, $"""type"": ""{RoomEvents(i)}""")
+        For Each K In KeyString
+            Dim E = K.Split(vbTab)(0)
+            Cou.add(E, CountingTexts(RdlevelFile, $"""type"": ""{E}"""))
         Next
     End Sub
+
+
     ''' <summary>
     ''' 删除缓存
     ''' </summary>
@@ -338,20 +270,28 @@ Public Class EventForm
             FileIO.UIOption.OnlyErrorDialogs, FileIO.RecycleOption.DeletePermanently)
         End If
     End Sub
+
+
+    ''' <summary>
+    ''' 文件对话框
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub OpenLevel_FileOk(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles OpenLevel.FileOk
         If IO.Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
         ElseIf IO.Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
             KillTemp()
             IO.Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, Environ("temp") & temp)
-            Dim s As String() = IO.Directory.GetFiles(Environ("temp") & temp, "*.rdlevel")
-            OpenLevel.FileName = Environ("temp") & temp & "\" & IO.Path.GetFileName(s(0))
+            Dim s As String() = IO.Directory.GetFiles($"{Environ("temp")}{temp}", "*.rdlevel")
+            OpenLevel.FileName = $"{Environ("temp")}{temp}\{IO.Path.GetFileName(s(0))}"
         Else MsgBox("这好像不是一个节奏医生关卡文件？")
             RdlevelFile = ""
         End If
         FilePath = OpenLevel.FileName
         RdlevelFile = System.IO.File.OpenText(FilePath).ReadToEnd
-
     End Sub
+
+
     ''' <summary>
     ''' 统计关键词数量
     ''' </summary>
@@ -370,8 +310,13 @@ Public Class EventForm
         Return Count
     End Function
 
+
+    ''' <summary>
+    ''' 刷新
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Sub Renew(sender As Object, e As MouseEventArgs) Handles MyBase.Click
-        EventTypeIndex = EventTypeIndex Mod 5
         Dim TitleImage = My.Resources.ResourceData.Title
         TitleBox.BackgroundImage = TitleImage.Clone(
             New Rectangle(EventTypeIndex * 48, 0, 48, 152),
@@ -379,6 +324,12 @@ Public Class EventForm
         ShowEventsCount()
     End Sub
 
+
+    ''' <summary>
+    ''' 左侧标题选项卡点击事件
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub TitleBox_Click(sender As Object, e As EventArgs) Handles TitleBox.Click
         Dim P = PointToClient(Cursor.Position)
         P = New Point((P.X - 4) \ 30, (P.Y - 4) \ 29)
@@ -397,4 +348,6 @@ Public Class EventForm
         End Select
         Renew(Nothing, Nothing)
     End Sub
+
+
 End Class
