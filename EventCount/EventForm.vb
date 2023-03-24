@@ -227,7 +227,7 @@ Public Class EventForm
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
         Dim Str As String = ""
         For Each I In SelEvent
-            Str += $"{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}{vbCrLf}"
+            Str += $"{vbCrLf}{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}"
         Next
         InformationLabel.Text = Str
         InformationLabel.CreateGraphics.Clear(InformationLabel.BackColor)
@@ -364,6 +364,7 @@ Public Class EventForm
         TitleBox.BackgroundImage = TitleImage.Clone(
             New Rectangle(EventTypeIndex * 48, 0, 48, 152),
             TitleImage.PixelFormat)
+        TitleBox.Size = New Point(TitleImage.Width / 5, TitleImage.Height)
         ShowEventsCount()
     End Sub
 
