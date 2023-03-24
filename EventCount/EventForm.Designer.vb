@@ -26,7 +26,7 @@ Partial Class EventForm
         Dim resources As ComponentModel.ComponentResourceManager = New ComponentModel.ComponentResourceManager(GetType(EventForm))
         OpenLevel = New OpenFileDialog()
         TitleBox = New PictureBox()
-        InformationLabel = New Label()
+        InfoLabel = New Label()
         Timer1 = New Timer(components)
         CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
@@ -42,15 +42,15 @@ Partial Class EventForm
         TitleBox.TabIndex = 0
         TitleBox.TabStop = False
         ' 
-        ' InformationLabel
+        ' InfoLabel
         ' 
-        InformationLabel.AutoSize = True
-        InformationLabel.ForeColor = Color.White
-        InformationLabel.Location = New Point(0, 155)
-        InformationLabel.Name = "InformationLabel"
-        InformationLabel.Size = New Size(0, 17)
-        InformationLabel.TabIndex = 1
-        ' 
+        InfoLabel.AutoSize = True
+        InfoLabel.ForeColor = Color.White
+        InfoLabel.Location = New Point(0, 155)
+        InfoLabel.Name = "InfoLabel"
+        InfoLabel.Size = New Size(12, 17)
+        InfoLabel.TabIndex = 1
+        InfoLabel.Text = " "' 
         ' Timer1
         ' 
         Timer1.Interval = 10
@@ -60,10 +60,10 @@ Partial Class EventForm
         AutoScaleDimensions = New SizeF(96F, 96F)
         AutoScaleMode = AutoScaleMode.Dpi
         BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
-        BackgroundImage = My.Resources.Resources.Back
+        BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
         BackgroundImageLayout = ImageLayout.None
-        ClientSize = New Size(302, 187)
-        Controls.Add(InformationLabel)
+        ClientSize = New Size(0, 0)
+        Controls.Add(InfoLabel)
         Controls.Add(TitleBox)
         DoubleBuffered = True
         FormBorderStyle = FormBorderStyle.Fixed3D
@@ -78,6 +78,6 @@ Partial Class EventForm
 
     Friend WithEvents OpenLevel As OpenFileDialog
     Friend WithEvents TitleBox As PictureBox
-    Friend WithEvents InformationLabel As Label
+    Friend WithEvents InfoLabel As Label
     Friend WithEvents Timer1 As Timer
 End Class
