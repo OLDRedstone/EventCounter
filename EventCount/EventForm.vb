@@ -1,6 +1,8 @@
 ﻿Imports System.Drawing.Imaging
+Imports System.Collections.Generic
 Imports System.Drawing.Text
 Imports System.Globalization
+Imports System.Windows.Forms
 Imports System.Runtime.InteropServices
 
 Public Class EventForm
@@ -19,24 +21,34 @@ Public Class EventForm
         New Point(56, 28))
     ReadOnly IconMag As UInt16 = 1
 
-    Dim EventTypeIndex As EType = EType.Sound
+    Dim EventTypeIndex = EType.Sound
 
     Dim StartControlCounts As UInt16 = 0
 
     ReadOnly MouseToIntroductionBox As Point = New Point(10, -10)
 
-    ReadOnly Raw As UInt16 = 4
+    ReadOnly Row As UInt16 = 4
 
     Dim Cou = New Dictionary(Of String, UInt64)
     Dim EveType = New Dictionary(Of String, String)
     Dim AllLang = New Dictionary(Of LangTable, String)
     Dim Assets = New Dictionary(Of String, IconTypes)
-    Dim SelEvent = New Dictionary(Of String, Boolean)
+    Dim SelEvent = New List(Of String)
 
-    Dim CurrentLanguage As LangType = LangType.zh
+    Dim CurrentLang As LangType = LangType.zh
 
     Dim Tick As Double = 0
-    Dim StartHeight, EndHeight As Int16
+    Dim startSize As Size
+    Dim EndHeight As Int16
+    Dim FrameSize As Size = (Me.PointToScreen(New Point()) - Me.Location) + New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X) ' (Me.PointToScreen(New Point()) - Me.Location).X)
+
+    Public Property EventForm1 As EventForm
+        Get
+            Return Nothing
+        End Get
+        Set(value As EventForm)
+        End Set
+    End Property
 
 
     ''' <summary>
@@ -69,17 +81,6 @@ Public Class EventForm
 
 
     ''' <summary>
-    ''' 图标状态
-    ''' </summary>
-    Enum SCType
-        None
-        Selected
-        Inactive
-        InactiveSelected
-    End Enum
-
-
-    ''' <summary>
     ''' 全局事件类型环境
     ''' </summary>
     Enum EType
@@ -99,7 +100,7 @@ Public Class EventForm
         Dim fontCollection As New PrivateFontCollection '创建字体集合
         fontCollection.AddMemoryFont(Marshal.UnsafeAddrOfPinnedArrayElement(fontData, 0), fontData.Length) '将字体字节数组添加到字体集合中
         RDFont = New Font(fontCollection.Families(0), 12)
-        InformationLabel.Font = RDFont
+        InfoLabel.Font = RDFont
     End Sub
 
 
@@ -110,7 +111,7 @@ Public Class EventForm
         For lang = 0 To 1
             For Each K In KeyString
                 Dim e() = K.Split(vbTab)
-                AllLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(CurrentLanguage + 2))
+                AllLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(CurrentLang + 2))
             Next
         Next
     End Sub
@@ -155,10 +156,13 @@ Public Class EventForm
         ReadLang()
         ReadType()
         ReadImage()
-        ChangeFont()
+        TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
         StartControlCounts = Me.Controls.Count
+        ChangeFont()
         ShowEventsCount()
         Renew(Nothing, Nothing)
+        InfoLabel.Top = TitleBox.Height
+        CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
     End Sub
 
 
@@ -168,16 +172,16 @@ Public Class EventForm
     ''' <param name="KeyWord">索引词</param>
     ''' <param name="SCType">图标状态</param>
     ''' <returns></returns>
-    Function ReturnImage(KeyWord As String, SCType As SCType) As Image
+    Function ReturnImage(KeyWord As String, SCType As String) As Image
         Dim Icon As IconTypes = Assets(KeyWord)
         Select Case SCType
-            Case SCType.None
+            Case "None"
                 Return Icon.None
-            Case SCType.Selected
+            Case "Selected"
                 Return Icon.Selected
-            Case SCType.Inactive
+            Case "Inactive"
                 Return Icon.Inactive
-            Case SCType.InactiveSelected
+            Case "InactiveSelected"
                 Return Icon.InactiveSelected
         End Select
         Return Nothing
@@ -190,16 +194,12 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
-        InformationLabel.Text = $"{Cou(sender.Name)} * {AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLanguage})}"
-        For Each I In SelEvent
-            InformationLabel.Text += $"{vbCrLf}{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}"
-        Next
+        ShowInfo($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
         If Cou(sender.Name) Then
-            sender.BackgroundImage = ReturnImage(sender.Name, SCType.Selected)
+            sender.BackgroundImage = ReturnImage(sender.Name, "Selected")
         Else
-            sender.BackgroundImage = ReturnImage(sender.Name, SCType.InactiveSelected)
+            sender.BackgroundImage = ReturnImage(sender.Name, "InactiveSelected")
         End If
-        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
     End Sub
 
 
@@ -209,13 +209,15 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseClickTheIcon(sender As PictureBox, e As EventArgs)
-        If Cou(sender.Name) And SelEvent.ContainsKey(sender.Name) = False Then
-            SelEvent.add(sender.Name, Cou(sender.Name))
-        Else
-            SelEvent.remove(sender.Name)
+        If Cou(sender.Name) Then
+            If SelEvent.Contains(sender.Name) = False Then
+                SelEvent.add(sender.Name)
+            Else
+                SelEvent.remove(sender.Name)
+            End If
+            MouseEnterTheIcon(sender, e)
+            CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
         End If
-        MouseEnterTheIcon(sender, e)
-        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
     End Sub
 
 
@@ -225,20 +227,23 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
-        Dim Str As String = ""
-        For Each I In SelEvent
-            Str += $"{Cou(I.key)} * {AllLang(New LangTable With {.ID = I.key, .Lang = CurrentLanguage})}{vbCrLf}"
-        Next
-        InformationLabel.Text = Str
-        InformationLabel.CreateGraphics.Clear(InformationLabel.BackColor)
-        If SelEvent.ContainsKey(sender.Name) = False Then
+        ShowInfo("")
+        If SelEvent.Contains(sender.Name) = False Then
             If Cou(sender.Name) Then
-                sender.BackgroundImage = ReturnImage(sender.Name, SCType.None)
+                sender.BackgroundImage = ReturnImage(sender.Name, "None")
             Else
-                sender.BackgroundImage = ReturnImage(sender.Name, SCType.Inactive)
+                sender.BackgroundImage = ReturnImage(sender.Name, "Inactive")
             End If
         End If
-        CallHeightChange(InformationLabel.Height + InformationLabel.Top + 52)
+    End Sub
+
+
+    Sub ShowInfo(Head As String)
+        For Each I In SelEvent
+            Head += $"{vbCrLf}{EveType(I)}     {Cou(I)} * {AllLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
+        Next
+        InfoLabel.Text = Head
+        'InfoLabel.CreateGraphics.DrawString("aaa", RDFont, New SolidBrush(Color.Red), New Point(0, 0))
     End Sub
 
 
@@ -252,23 +257,23 @@ Public Class EventForm
             If K.Split(vbTab)(1) = ET.ToString Then
                 Dim NewIcon = New PictureBox With {
                     .Location = New Point(
-                        IconSet.Left + (i \ Raw) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
-                        IconSet.Top + (i Mod Raw) * IconSet.Height * IconMag),
+                        IconSet.Left + (i \ Row) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
+                        IconSet.Top + (i Mod Row) * IconSet.Height * IconMag),
                     .Font = RDFont,
                     .BackColor = Color.Transparent,
                     .Name = K.Split(vbTab)(0)
                 }
 
-                If SelEvent.ContainsKey(NewIcon.Name) = False Then
+                If SelEvent.Contains(NewIcon.Name) = False Then
                     If Cou(NewIcon.Name) = 0 Then
-                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Inactive)
+                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, "Inactive")
                     Else
-                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.None)
+                        NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, "None")
                     End If
                 Else
-                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, SCType.Selected)
+                    NewIcon.BackgroundImage = ReturnImage(NewIcon.Name, "Selected")
                 End If
-                NewIcon.Size = ReturnImage(NewIcon.Name, SCType.None).Size
+                NewIcon.Size = ReturnImage(NewIcon.Name, "None").Size
 
                 AddHandler NewIcon.MouseEnter, AddressOf MouseEnterTheIcon
                 AddHandler NewIcon.Click, AddressOf MouseClickTheIcon
@@ -285,8 +290,15 @@ Public Class EventForm
     ''' 刷新图标控件
     ''' </summary>
     Sub ShowEventsCount()
-        While Me.Controls.Count > StartControlCounts
-            Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
+        'While Me.Controls.Count > StartControlCounts
+        '    Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
+        'End While
+        Dim i = 0
+        While i < Me.Controls.Count
+            If Me.Controls.Item(i).GetType.ToString = "System.Windows.Forms.PictureBox" And EveType.ContainsKey(Me.Controls.Item(i).Name) Then
+                Me.Controls.Remove(Me.Controls.Item(i))
+            Else i += 1
+            End If
         End While
         CreateEventsIcon(EventTypeIndex)
     End Sub
@@ -308,8 +320,8 @@ Public Class EventForm
     ''' </summary>
     ''' <returns></returns>
     Public Sub KillTemp()
-        If My.Computer.FileSystem.DirectoryExists(Environ("temp") & temp) Then '删除原输出
-            My.Computer.FileSystem.DeleteDirectory(Environ("temp") & temp,
+        If My.Computer.FileSystem.DirectoryExists($"{Environ("TEMP")}{temp}") Then '删除原输出
+            My.Computer.FileSystem.DeleteDirectory($"{Environ("TEMP")}{temp}",
             FileIO.UIOption.OnlyErrorDialogs, FileIO.RecycleOption.DeletePermanently)
         End If
     End Sub
@@ -324,8 +336,8 @@ Public Class EventForm
         If IO.Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
         ElseIf IO.Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
             KillTemp()
-            IO.Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, Environ("temp") & temp)
-            Dim s As String() = IO.Directory.GetFiles($"{Environ("temp")}{temp}", "*.rdlevel")
+            IO.Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, Environ("TEMP") & temp)
+            Dim s As String() = IO.Directory.GetFiles($"{Environ("TEMP")}{temp}", "*.rdlevel")
             OpenLevel.FileName = $"{Environ("temp")}{temp}\{IO.Path.GetFileName(s(0))}"
         Else MsgBox("这好像不是一个节奏医生关卡文件？")
             RdlevelFile = ""
@@ -395,7 +407,8 @@ Public Class EventForm
 
     Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
         If Tick < 1 Then
-            Me.Height = StartHeight + (EndHeight - StartHeight) * Ease(Tick)
+            Me.Width = startSize.Width + (Math.Max(Me.BackgroundImage.Width, InfoLabel.Width) + FrameSize.Width - startSize.Width) * Ease(Tick)
+            Me.Height = startSize.Height + (EndHeight - startSize.Height + FrameSize.Height) * Ease(Tick)
             Tick += 0.01
             Debug.Print(Tick)
         Else Timer1.Stop()
@@ -410,7 +423,7 @@ Public Class EventForm
     End Function
 
     Sub CallHeightChange(Height As UInt16)
-        StartHeight = Me.Height
+        startSize = Me.Size
         EndHeight = Height
         Tick = 0
         Timer1.Start()
