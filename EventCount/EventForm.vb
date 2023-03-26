@@ -540,7 +540,7 @@ Public Class EventForm
     End Sub
 
 
-    Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles Me.Click
+    Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles MyBase.Click
         Dim P = PointToClient(Cursor.Position)
         If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
             My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
