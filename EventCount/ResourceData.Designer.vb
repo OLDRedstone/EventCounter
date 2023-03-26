@@ -65,6 +65,17 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 MissingFiles	重新安装吧……	Where&apos;s my Documents?
+        '''ImportWrongFile	这啥玩意啊？	What the hell did you give me?
+        '''ClickMoveRoomEvent	动起来！	Move! 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property Achievement() As String
+            Get
+                Return ResourceManager.GetString("Achievement", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找 System.Byte[] 类型的本地化资源。
         '''</summary>
         Friend Shared ReadOnly Property RDLatinFontPoint() As Byte()
@@ -91,6 +102,19 @@ Namespace My.Resources
             Get
                 Dim obj As Object = ResourceManager.GetObject("Title", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Sound	声音	SOUNDS
+        '''Rail	轨道	ROWS
+        '''Motion	动作	ACTIONS
+        '''Sprite	精灵	DECORATIONS
+        '''Room	房间	ROOMS 的本地化字符串。
+        '''</summary>
+        Friend Shared ReadOnly Property TitleName() As String
+            Get
+                Return ResourceManager.GetString("TitleName", resourceCulture)
             End Get
         End Property
     End Class

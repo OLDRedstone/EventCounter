@@ -1,18 +1,20 @@
 ﻿Imports System.Drawing.Imaging
 Imports System.Collections.Generic
 Imports System.Drawing.Text
+Imports System.Text.RegularExpressions
 Imports System.Globalization
-Imports System.Windows.Forms
+Imports System.IO
 Imports System.Runtime.InteropServices
 
 Public Class EventForm
 
     ReadOnly IconPath = $"{Application.StartupPath}\Assets\"
-    ReadOnly KeyString() As String = System.IO.File.OpenText($"{IconPath}Keys.txt").ReadToEnd.Split(vbCrLf)
+    ReadOnly KeyString() As String = System.IO.File.OpenText(GetFile("Info\Keys")).ReadToEnd.Split(vbCrLf)
 
     Dim FilePath As String = ""
     Dim RdlevelFile As String = ""
-    ReadOnly temp As String = "\%RDLevelUnzip%"
+    ReadOnly TempFile As String = "\%EventCounterRDLevelUnzip%"
+    ReadOnly AchiFile As String = "C:\ProgramData\Achievements"
 
     Dim RDFont As Font
 
@@ -29,11 +31,14 @@ Public Class EventForm
 
     ReadOnly Row As UInt16 = 4
 
-    Dim Cou = New Dictionary(Of String, UInt64)
+    ReadOnly Cou = New Dictionary(Of String, UInt64)
     Dim EveType = New Dictionary(Of String, String)
-    Dim AllLang = New Dictionary(Of LangTable, String)
+    Dim EventsLang = New Dictionary(Of LangTable, String)
+    Dim TitleLang = New Dictionary(Of LangTable, String)
+    Dim AchieveMentsLang = New Dictionary(Of LangTable, String)
     Dim Assets = New Dictionary(Of String, IconTypes)
     Dim SelEvent = New List(Of String)
+    Dim AchieveMents = New List(Of String)
 
     Dim CurrentLang As LangType = LangType.zh
 
@@ -41,14 +46,6 @@ Public Class EventForm
     Dim startSize As Size
     Dim EndHeight As Int16
     Dim FrameSize As Size = (Me.PointToScreen(New Point()) - Me.Location) + New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X) ' (Me.PointToScreen(New Point()) - Me.Location).X)
-
-    Public Property EventForm1 As EventForm
-        Get
-            Return Nothing
-        End Get
-        Set(value As EventForm)
-        End Set
-    End Property
 
 
     ''' <summary>
@@ -105,41 +102,53 @@ Public Class EventForm
 
 
     ''' <summary>
-    ''' 读取翻译
+    ''' 读取所有
     ''' </summary>
-    Sub ReadLang()
+    Sub ReadNecessarity()
+
+        EventsLang.clear
+        Assets.clear
+        EveType.clear
+        TitleLang.clear
+        AchieveMentsLang.clear
         For lang = 0 To 1
             For Each K In KeyString
-                Dim e() = K.Split(vbTab)
-                AllLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(CurrentLang + 2))
+                Dim e = K.Split(vbTab)
+                EventsLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 2))
             Next
         Next
-    End Sub
 
-
-    ''' <summary>
-    ''' 读取图片
-    ''' </summary>
-    Sub ReadImage()
         For Each K In KeyString
             Dim E = K.Split(vbTab)(0)
             Assets.add(E,
                     New IconTypes With {
-                    .None = Image.FromFile($"{IconPath}{E}None.png"),
-                    .Selected = Image.FromFile($"{IconPath}{E}Selected.png"),
-                    .Inactive = Image.FromFile($"{IconPath}{E}Inactive.png"),
-                    .InactiveSelected = Image.FromFile($"{IconPath}{E}InactiveSelected.png")
+                    .None = Image.FromFile(GetFile($"Icons\{E}None.png")),
+                    .Selected = Image.FromFile(GetFile($"Icons\{E}Selected.png")),
+                    .Inactive = Image.FromFile(GetFile($"Icons\{E}Inactive.png")),
+                    .InactiveSelected = Image.FromFile(GetFile($"Icons\{E}InactiveSelected.png"))
                     }
             )
         Next
-    End Sub
 
-
-    Sub ReadType()
         For Each K In KeyString
             Dim E = K.Split(vbTab)
             EveType.add(E(0), E(1))
         Next
+
+        For lang = 0 To 1
+            For Each K In My.Resources.ResourceData.TitleName.Split(vbCrLf)
+                Dim e = K.Split(vbTab)
+                TitleLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 1))
+            Next
+        Next
+
+        For lang = 0 To 1
+            For Each K In My.Resources.ResourceData.Achievement.Split(vbCrLf)
+                Dim e = K.Split(vbTab)
+                AchieveMentsLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 1))
+            Next
+        Next
+
     End Sub
 
 
@@ -149,18 +158,29 @@ Public Class EventForm
     ''' <param name="sender">控件</param>
     ''' <param name="e">控件参数</param>
     Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        If OpenLevel.ShowDialog() <> DialogResult.OK Then
-            End
+        My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
+        If My.Computer.FileSystem.FileExists(AchiFile) Then
+            Dim a = New StreamReader(AchiFile)
+            Dim b = a.ReadToEnd
+            a.Close()
+            System.IO.File.Delete(AchiFile)
+            For Each I In b.Split(vbCrLf)
+                If I <> "" Then
+                    AchieveMents.add(I)
+                    Debug.Print(I)
+                End If
+            Next
         End If
+        OpenLevel.ShowDialog()
+        Cou.clear
+        SelEvent.clear
         CountingEvents()
-        ReadLang()
-        ReadType()
-        ReadImage()
+        ReadNecessarity()
         TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
         StartControlCounts = Me.Controls.Count
         ChangeFont()
         ShowEventsCount()
-        Renew(Nothing, Nothing)
+        RenewTitle(Nothing, Nothing)
         InfoLabel.Top = TitleBox.Height
         CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
     End Sub
@@ -194,7 +214,7 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
-        ShowInfo($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{AllLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
+        ShowInfo($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{EventsLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
         If Cou(sender.Name) Then
             sender.BackgroundImage = ReturnImage(sender.Name, "Selected")
         Else
@@ -212,8 +232,14 @@ Public Class EventForm
         If Cou(sender.Name) Then
             If SelEvent.Contains(sender.Name) = False Then
                 SelEvent.add(sender.Name)
+                My.Computer.Audio.Play(GetFile("Sounds\On.wav"))
+                If sender.Name = "NewWindowDance" Then
+                    CallAchievements(2)
+                    '''窗口移动彩蛋
+                End If
             Else
                 SelEvent.remove(sender.Name)
+                My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
             End If
             MouseEnterTheIcon(sender, e)
             CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
@@ -240,10 +266,9 @@ Public Class EventForm
 
     Sub ShowInfo(Head As String)
         For Each I In SelEvent
-            Head += $"{vbCrLf}{EveType(I)}     {Cou(I)} * {AllLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
+            Head += $"{vbCrLf}{TitleLang(New LangTable With {.ID = EveType(I).ToString, .Lang = CurrentLang})}     {Cou(I)} * {EventsLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
         Next
         InfoLabel.Text = Head
-        'InfoLabel.CreateGraphics.DrawString("aaa", RDFont, New SolidBrush(Color.Red), New Point(0, 0))
     End Sub
 
 
@@ -290,9 +315,6 @@ Public Class EventForm
     ''' 刷新图标控件
     ''' </summary>
     Sub ShowEventsCount()
-        'While Me.Controls.Count > StartControlCounts
-        '    Me.Controls.Remove(Me.Controls.Item(StartControlCounts))
-        'End While
         Dim i = 0
         While i < Me.Controls.Count
             If Me.Controls.Item(i).GetType.ToString = "System.Windows.Forms.PictureBox" And EveType.ContainsKey(Me.Controls.Item(i).Name) Then
@@ -320,8 +342,8 @@ Public Class EventForm
     ''' </summary>
     ''' <returns></returns>
     Public Sub KillTemp()
-        If My.Computer.FileSystem.DirectoryExists($"{Environ("TEMP")}{temp}") Then '删除原输出
-            My.Computer.FileSystem.DeleteDirectory($"{Environ("TEMP")}{temp}",
+        If My.Computer.FileSystem.DirectoryExists($"{Environ("TEMP")}{TempFile}") Then '删除原输出
+            My.Computer.FileSystem.DeleteDirectory($"{Environ("TEMP")}{TempFile}",
             FileIO.UIOption.OnlyErrorDialogs, FileIO.RecycleOption.DeletePermanently)
         End If
     End Sub
@@ -333,17 +355,22 @@ Public Class EventForm
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
     Private Sub OpenLevel_FileOk(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles OpenLevel.FileOk
-        If IO.Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
-        ElseIf IO.Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
+        If Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
+        ElseIf Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
             KillTemp()
-            IO.Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, Environ("TEMP") & temp)
-            Dim s As String() = IO.Directory.GetFiles($"{Environ("TEMP")}{temp}", "*.rdlevel")
-            OpenLevel.FileName = $"{Environ("temp")}{temp}\{IO.Path.GetFileName(s(0))}"
-        Else MsgBox("这好像不是一个节奏医生关卡文件？")
+            Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, $"{Environ("TEMP")}{TempFile}")
+            Dim s As String() = Directory.GetFiles($"{Environ("TEMP")}{TempFile}", "*.rdlevel")
+            OpenLevel.FileName = $"{Environ("temp")}{TempFile}\{IO.Path.GetFileName(s(0))}"
+        Else
+            CallAchievements(1)
             RdlevelFile = ""
         End If
         FilePath = OpenLevel.FileName
-        RdlevelFile = System.IO.File.OpenText(FilePath).ReadToEnd
+        If File.Exists(FilePath) Then
+            RdlevelFile = File.OpenText(FilePath).ReadToEnd
+            Me.Text = FindMidWord("""song"": """, """,", RdlevelFile)
+        End If
+
     End Sub
 
 
@@ -367,11 +394,11 @@ Public Class EventForm
 
 
     ''' <summary>
-    ''' 刷新
+    ''' 刷新侧边标题栏
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Sub Renew(sender As Object, e As MouseEventArgs)
+    Sub RenewTitle(sender As Object, e As MouseEventArgs)
         Dim TitleImage = My.Resources.ResourceData.Title
         TitleBox.BackgroundImage = TitleImage.Clone(
             New Rectangle(EventTypeIndex * 48, 0, 48, 152),
@@ -385,23 +412,63 @@ Public Class EventForm
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Private Sub TitleBox_Click(sender As Object, e As EventArgs) Handles TitleBox.Click
+    Private Sub TitleBox_Click(sender As Object, e As MouseEventArgs) Handles TitleBox.Click
         Dim P = PointToClient(Cursor.Position)
-        P = New Point((P.X - 4) \ 30, (P.Y - 4) \ 29)
-        Select Case P
-            Case New Point(0, 0)
-                EventTypeIndex = 0
-            Case New Point(0, 1)
-                EventTypeIndex = 1
-            Case New Point(0, 2)
-                EventTypeIndex = 2
-            Case New Point(0, 3)
-                EventTypeIndex = 3
-            Case New Point(0, 4)
-                EventTypeIndex = 4
-            Case Else
+        Dim Q = New Point((P.X - 4) \ 30, (P.Y - 4) \ 29)
+
+        Select Case e.Button
+            Case MouseButtons.Left
+                If Q.Y = EventTypeIndex Then
+                    Exit Sub
+                End If
+                Select Case Q
+                    Case New Point(0, 0)
+                        EventTypeIndex = EType.Sound
+                        My.Computer.Audio.Play(GetFile("Sounds\0.wav"))
+                    Case New Point(0, 1)
+                        EventTypeIndex = EType.Rail
+                        My.Computer.Audio.Play(GetFile("Sounds\1.wav"))
+                    Case New Point(0, 2)
+                        EventTypeIndex = EType.Motion
+                        My.Computer.Audio.Play(GetFile("Sounds\2.wav"))
+                    Case New Point(0, 3)
+                        EventTypeIndex = EType.Sprite
+                        My.Computer.Audio.Play(GetFile("Sounds\3.wav"))
+                    Case New Point(0, 4)
+                        EventTypeIndex = EType.Room
+                        My.Computer.Audio.Play(GetFile("Sounds\4.wav"))
+                    Case Else
+                End Select
+            Case MouseButtons.Right
+                Dim SE = New List(Of String)
+                For Each I In SelEvent
+                    SE.Add(I)
+                Next
+                SelEvent.Clear
+                Dim SelectType As EType
+                Select Case Q
+                    Case New Point(0, 0)
+                        SelectType = EType.Sound
+                    Case New Point(0, 1)
+                        SelectType = EType.Rail
+                    Case New Point(0, 2)
+                        SelectType = EType.Motion
+                    Case New Point(0, 3)
+                        SelectType = EType.Sprite
+                    Case New Point(0, 4)
+                        SelectType = EType.Room
+                    Case Else
+                End Select
+                For Each I In SE
+                    If EveType(I) <> SelectType.ToString Then
+                        SelEvent.add(I)
+                    End If
+                Next
+                My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
         End Select
-        Renew(Nothing, Nothing)
+        RenewTitle(Nothing, Nothing)
+        ShowInfo("")
+        CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
     End Sub
 
 
@@ -410,7 +477,6 @@ Public Class EventForm
             Me.Width = startSize.Width + (Math.Max(Me.BackgroundImage.Width, InfoLabel.Width) + FrameSize.Width - startSize.Width) * Ease(Tick)
             Me.Height = startSize.Height + (EndHeight - startSize.Height + FrameSize.Height) * Ease(Tick)
             Tick += 0.01
-            Debug.Print(Tick)
         Else Timer1.Stop()
             Tick = 0
         End If
@@ -422,10 +488,68 @@ Public Class EventForm
         Return IIf(x = 1, 1, 1 - 2 ^ (-10 * x))
     End Function
 
+
     Sub CallHeightChange(Height As UInt16)
         startSize = Me.Size
         EndHeight = Height
         Tick = 0
         Timer1.Start()
+    End Sub
+
+
+    Function GetFile(Path As String) As String
+        If My.Computer.FileSystem.FileExists($"{IconPath}{Path}") Then
+            Return $"{IconPath}{Path}"
+        Else
+            CallAchievements(0)
+            End
+        End If
+    End Function
+
+
+    Function FindMidWord(startStr As String, endStr As String, text As String) As String
+        Dim startIndex As Integer = text.IndexOf(startStr)
+        Dim endIndex As Integer = text.IndexOf(endStr, startIndex + startStr.Length)
+        If startIndex = -1 OrElse endIndex = -1 Then
+            Return ""
+        End If
+        Dim contentStartIndex As Integer = startIndex + startStr.Length
+        Dim contentLength As Integer = endIndex - contentStartIndex
+        If contentLength < 0 Then
+            Return ""
+        End If
+        Return text.Substring(contentStartIndex, contentLength)
+    End Function
+
+
+    Private Sub EventForm_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
+        Dim b = New StreamWriter(AchiFile)
+        For Each I In AchieveMents
+            b.WriteLine(I)
+        Next
+        b.Close()
+    End Sub
+
+
+    Sub CallAchievements(Index As UInt16)
+        Dim T = My.Resources.ResourceData.Achievement.Split(vbCrLf)(Index).Split(vbTab)(0)
+        If AchieveMents.Contains(T) = False Then
+            AchieveMents.add(T)
+            Debug.Print(T)
+        End If
+    End Sub
+
+
+    Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles MyBase.Click
+        Dim P = PointToClient(Cursor.Position)
+        If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
+            My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
+            Form_Load(Nothing, Nothing)
+            ShowInfo("")
+            CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
+        End If
+        If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
+            '''显示成就
+        End If
     End Sub
 End Class
