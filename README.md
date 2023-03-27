@@ -23,7 +23,7 @@
 - - -
 ## 当前
 * 成功解决了让我头疼的内嵌字体的问题  
-* 在打开像 **when_the_apple_is_bad.zip [^3]** 这样的巨量事件关卡文件时进展会非常慢<font color=#cccccc>（老问题，暂无头绪）</font>  
+* 在打开像 **when_the_apple_is_bad.zip [^3]** 这样的巨量事件关卡文件时进展会非常慢<font color=#cccccc>（老问题，暂无动向）</font>  
 * 事件图标嵌入问题:~暂不能动态访问resx，所以想着用GIF来代替~ 用精灵图解决了
 * 完成了UI的图标绘制
 * **感谢圈师傅(@LittleCircleOO)以及其他群友对这个项目的帮助与鼓励！**
