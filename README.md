@@ -29,6 +29,11 @@
 * 文件读取方式大改，所需文件上传暂缓
 * 添加了多选显示方案
 * 为窗体尺寸变化赋上了简单的缓动效果
+* 完成了DPI适配
+* 增加了文件缺失的判断
+* 能够同一次启动多次打开文件了
+* 少量增加了成就
+* 右键清空一个板块所有统计项
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
