@@ -78,19 +78,9 @@ Namespace My.Resources
         '''<summary>
         '''  查找 System.Byte[] 类型的本地化资源。
         '''</summary>
-        Friend Shared ReadOnly Property RDLatinFontPoint() As Byte()
+        Friend Shared ReadOnly Property SourceHanSansCN_Bold() As Byte()
             Get
-                Dim obj As Object = ResourceManager.GetObject("RDLatinFontPoint", resourceCulture)
-                Return CType(obj,Byte())
-            End Get
-        End Property
-        
-        '''<summary>
-        '''  查找 System.Byte[] 类型的本地化资源。
-        '''</summary>
-        Friend Shared ReadOnly Property SourceHanSans_Bold() As Byte()
-            Get
-                Dim obj As Object = ResourceManager.GetObject("SourceHanSans_Bold", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("SourceHanSansCN_Bold", resourceCulture)
                 Return CType(obj,Byte())
             End Get
         End Property

@@ -1,15 +1,11 @@
-﻿Imports System.Drawing.Imaging
-Imports System.Collections.Generic
-Imports System.Drawing.Text
-Imports System.Text.RegularExpressions
-Imports System.Globalization
+﻿Imports System.Drawing.Text
 Imports System.IO
 Imports System.Runtime.InteropServices
 
 Public Class EventForm
 
     ReadOnly IconPath = $"{Application.StartupPath}\Assets\"
-    ReadOnly KeyString() As String = System.IO.File.OpenText(GetFile("Info\Keys")).ReadToEnd.Split(vbCrLf)
+    ReadOnly KeyString() As String = File.OpenText(GetFile("Info\Keys")).ReadToEnd.Split(vbCrLf)
 
     Dim FilePath As String = ""
     Dim RdlevelFile As String = ""
@@ -31,7 +27,7 @@ Public Class EventForm
 
     ReadOnly Row As UInt16 = 4
 
-    ReadOnly Cou = New Dictionary(Of String, UInt64)
+    Dim Cou = New Dictionary(Of String, UInt64)
     Dim EveType = New Dictionary(Of String, String)
     Dim EventsLang = New Dictionary(Of LangTable, String)
     Dim TitleLang = New Dictionary(Of LangTable, String)
@@ -45,7 +41,9 @@ Public Class EventForm
     Dim Tick As Double = 0
     Dim startSize As Size
     Dim EndHeight As Int16
-    Dim FrameSize As Size = (Me.PointToScreen(New Point()) - Me.Location) + New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X) ' (Me.PointToScreen(New Point()) - Me.Location).X)
+    Dim FrameSize As Size =
+        (Me.PointToScreen(New Point()) - Me.Location) +
+        New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X)
 
 
     ''' <summary>
@@ -93,30 +91,40 @@ Public Class EventForm
     ''' 字体更换
     ''' </summary>
     Sub ChangeFont()
-        Dim fontData As Byte() = My.Resources.ResourceData.SourceHanSans_Bold
         Dim fontCollection As New PrivateFontCollection '创建字体集合
-        fontCollection.AddMemoryFont(Marshal.UnsafeAddrOfPinnedArrayElement(fontData, 0), fontData.Length) '将字体字节数组添加到字体集合中
+        fontCollection.AddFontFile(GetFile("Fonts\SourceHanSansCN-Bold.otf"))
         RDFont = New Font(fontCollection.Families(0), 12)
         InfoLabel.Font = RDFont
     End Sub
 
 
     ''' <summary>
-    ''' 读取所有
+    ''' 窗体加载
     ''' </summary>
-    Sub ReadNecessarity()
+    ''' <param name="sender">控件</param>
+    ''' <param name="e">控件参数</param>
+    Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+        FirstLoad()
+        Reload()
+    End Sub
 
-        EventsLang.clear
-        Assets.clear
-        EveType.clear
-        TitleLang.clear
-        AchieveMentsLang.clear
-        For lang = 0 To 1
-            For Each K In KeyString
-                Dim e = K.Split(vbTab)
-                EventsLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 2))
+
+    Sub FirstLoad()
+        If My.Computer.FileSystem.FileExists(AchiFile) Then
+            Dim a = New StreamReader(AchiFile)
+            Dim b = a.ReadToEnd
+            a.Close()
+            System.IO.File.Delete(AchiFile)
+            For Each I In b.Split(vbCrLf)
+                If I <> "" Then
+                    AchieveMents.add(I)
+                End If
             Next
-        Next
+        End If
+        TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
+        StartControlCounts = Me.Controls.Count
+        ChangeFont()
+
 
         For Each K In KeyString
             Dim E = K.Split(vbTab)(0)
@@ -128,6 +136,13 @@ Public Class EventForm
                     .InactiveSelected = Image.FromFile(GetFile($"Icons\{E}InactiveSelected.png"))
                     }
             )
+        Next
+
+        For lang = 0 To 1
+            For Each K In KeyString
+                Dim e = K.Split(vbTab)
+                EventsLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 2))
+            Next
         Next
 
         For Each K In KeyString
@@ -152,37 +167,20 @@ Public Class EventForm
     End Sub
 
 
-    ''' <summary>
-    ''' 窗体加载
-    ''' </summary>
-    ''' <param name="sender">控件</param>
-    ''' <param name="e">控件参数</param>
-    Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
-        If My.Computer.FileSystem.FileExists(AchiFile) Then
-            Dim a = New StreamReader(AchiFile)
-            Dim b = a.ReadToEnd
-            a.Close()
-            System.IO.File.Delete(AchiFile)
-            For Each I In b.Split(vbCrLf)
-                If I <> "" Then
-                    AchieveMents.add(I)
-                    Debug.Print(I)
-                End If
-            Next
-        End If
-        OpenLevel.ShowDialog()
+    Sub Reload()
         Cou.clear
+        For Each K In KeyString
+            Dim E = K.Split(vbTab)(0)
+            Cou.add(E, 0)
+        Next
+        If RdlevelFile.Length Then
+            CountingEvents()
+        End If
         SelEvent.clear
-        CountingEvents()
-        ReadNecessarity()
-        TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
-        StartControlCounts = Me.Controls.Count
-        ChangeFont()
-        ShowEventsCount()
         RenewTitle(Nothing, Nothing)
         InfoLabel.Top = TitleBox.Height
         CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
+
     End Sub
 
 
@@ -214,7 +212,7 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
-        ShowInfo($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{EventsLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
+        ShowLevelName($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{EventsLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
         If Cou(sender.Name) Then
             sender.BackgroundImage = ReturnImage(sender.Name, "Selected")
         Else
@@ -253,7 +251,7 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
-        ShowInfo("")
+        ShowLevelName("")
         If SelEvent.Contains(sender.Name) = False Then
             If Cou(sender.Name) Then
                 sender.BackgroundImage = ReturnImage(sender.Name, "None")
@@ -264,7 +262,7 @@ Public Class EventForm
     End Sub
 
 
-    Sub ShowInfo(Head As String)
+    Sub ShowLevelName(Head As String)
         For Each I In SelEvent
             Head += $"{vbCrLf}{TitleLang(New LangTable With {.ID = EveType(I).ToString, .Lang = CurrentLang})}     {Cou(I)} * {EventsLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
         Next
@@ -330,9 +328,14 @@ Public Class EventForm
     ''' 为数组赋值
     ''' </summary>
     Sub CountingEvents()
-        For Each K In KeyString
-            Dim E = K.Split(vbTab)(0)
-            Cou.add(E, CountingTexts(RdlevelFile, $"""type"": ""{E}"""))
+        Dim Text = RdlevelFile.Split("{")
+        For Each T In Text
+            If T.IndexOf("type") > 0 Then
+                Dim key = FindMidWord("""type"": """, """", T)
+                If Cou.ContainsKey(key) Then
+                    Cou(key) += 1
+                End If
+            End If
         Next
     End Sub
 
@@ -372,25 +375,6 @@ Public Class EventForm
         End If
 
     End Sub
-
-
-    ''' <summary>
-    ''' 统计关键词数量
-    ''' </summary>
-    ''' <param name="source">被查找对象</param>
-    ''' <param name="key">查找关键词</param>
-    ''' <returns></returns>
-    Function CountingTexts(source As String, key As String) As UInt64
-        Dim Count As UInt64 = 0
-        Dim Text As String = source
-        Dim T = InStr(Text, key)
-        While T
-            Text = Mid(Text, T + 1)
-            T = InStr(Text, key)
-            Count += 1
-        End While
-        Return Count
-    End Function
 
 
     ''' <summary>
@@ -467,7 +451,7 @@ Public Class EventForm
                 My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
         End Select
         RenewTitle(Nothing, Nothing)
-        ShowInfo("")
+        ShowLevelName("")
         CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
     End Sub
 
@@ -535,7 +519,6 @@ Public Class EventForm
         Dim T = My.Resources.ResourceData.Achievement.Split(vbCrLf)(Index).Split(vbTab)(0)
         If AchieveMents.Contains(T) = False Then
             AchieveMents.add(T)
-            Debug.Print(T)
         End If
     End Sub
 
@@ -543,9 +526,10 @@ Public Class EventForm
     Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles MyBase.Click
         Dim P = PointToClient(Cursor.Position)
         If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
+            OpenLevel.ShowDialog()
             My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
-            Form_Load(Nothing, Nothing)
-            ShowInfo("")
+            Reload()
+            ShowLevelName("")
             CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
         End If
         If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
