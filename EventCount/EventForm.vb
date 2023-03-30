@@ -1,5 +1,6 @@
 ﻿Imports System.Drawing.Text
 Imports System.IO
+Imports System.Threading
 Imports System.Runtime.InteropServices
 
 Public Class EventForm
@@ -26,6 +27,9 @@ Public Class EventForm
     ReadOnly MouseToIntroductionBox As Point = New Point(10, -10)
 
     ReadOnly Row As UInt16 = 4
+
+    Dim Process As Double = 0
+
 
     Dim Cou = New Dictionary(Of String, UInt64)
     Dim EveType = New Dictionary(Of String, String)
@@ -121,7 +125,7 @@ Public Class EventForm
                 End If
             Next
         End If
-        TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
+        'TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
         StartControlCounts = Me.Controls.Count
         ChangeFont()
 
@@ -174,7 +178,10 @@ Public Class EventForm
             Cou.add(E, 0)
         Next
         If RdlevelFile.Length Then
-            CountingEvents()
+            Timer2.Start()
+            Dim CE As New Thread(AddressOf CountingEvents)
+            CE.Start()
+            CE.Interrupt()
         End If
         SelEvent.clear
         RenewTitle(Nothing, Nothing)
@@ -329,14 +336,17 @@ Public Class EventForm
     ''' </summary>
     Sub CountingEvents()
         Dim Text = RdlevelFile.Split("{")
-        For Each T In Text
+        For i As UInt64 = 0 To Text.Length - 1
+            Dim T = Text(i)
             If T.IndexOf("type") > 0 Then
                 Dim key = FindMidWord("""type"": """, """", T)
                 If Cou.ContainsKey(key) Then
                     Cou(key) += 1
                 End If
             End If
+            Process = i / (Text.Length - 1)
         Next
+        Timer2.Stop()
     End Sub
 
 
@@ -403,27 +413,39 @@ Public Class EventForm
         Select Case e.Button
             Case MouseButtons.Left
                 If Q.Y = EventTypeIndex Then
-                    Exit Sub
+                    My.Computer.Audio.Play(GetFile("Sounds\On.wav"))
+                    For Each RecordedEvents In EveType
+                        If RecordedEvents.value = EventTypeIndex.ToString And
+                            Cou(RecordedEvents.key) Then
+                            If SelEvent.Contains(RecordedEvents.key) Then
+                                SelEvent.remove(RecordedEvents.key)
+                            Else
+                                SelEvent.add(RecordedEvents.key)
+                            End If
+                        End If
+                    Next
+                Else
+                    Select Case Q
+                        Case New Point(0, 0)
+                            EventTypeIndex = EType.Sound
+                            My.Computer.Audio.Play(GetFile("Sounds\0.wav"))
+                        Case New Point(0, 1)
+                            EventTypeIndex = EType.Rail
+                            My.Computer.Audio.Play(GetFile("Sounds\1.wav"))
+                        Case New Point(0, 2)
+                            EventTypeIndex = EType.Motion
+                            My.Computer.Audio.Play(GetFile("Sounds\2.wav"))
+                        Case New Point(0, 3)
+                            EventTypeIndex = EType.Sprite
+                            My.Computer.Audio.Play(GetFile("Sounds\3.wav"))
+                        Case New Point(0, 4)
+                            EventTypeIndex = EType.Room
+                            My.Computer.Audio.Play(GetFile("Sounds\4.wav"))
+                        Case Else
+                    End Select
                 End If
-                Select Case Q
-                    Case New Point(0, 0)
-                        EventTypeIndex = EType.Sound
-                        My.Computer.Audio.Play(GetFile("Sounds\0.wav"))
-                    Case New Point(0, 1)
-                        EventTypeIndex = EType.Rail
-                        My.Computer.Audio.Play(GetFile("Sounds\1.wav"))
-                    Case New Point(0, 2)
-                        EventTypeIndex = EType.Motion
-                        My.Computer.Audio.Play(GetFile("Sounds\2.wav"))
-                    Case New Point(0, 3)
-                        EventTypeIndex = EType.Sprite
-                        My.Computer.Audio.Play(GetFile("Sounds\3.wav"))
-                    Case New Point(0, 4)
-                        EventTypeIndex = EType.Room
-                        My.Computer.Audio.Play(GetFile("Sounds\4.wav"))
-                    Case Else
-                End Select
             Case MouseButtons.Right
+                My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
                 Dim SE = New List(Of String)
                 For Each I In SelEvent
                     SE.Add(I)
@@ -448,7 +470,6 @@ Public Class EventForm
                         SelEvent.add(I)
                     End If
                 Next
-                My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
         End Select
         RenewTitle(Nothing, Nothing)
         ShowLevelName("")
@@ -526,14 +547,21 @@ Public Class EventForm
     Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles MyBase.Click
         Dim P = PointToClient(Cursor.Position)
         If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
-            OpenLevel.ShowDialog()
             My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
+            OpenLevel.ShowDialog()
             Reload()
             ShowLevelName("")
             CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
         End If
         If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
             '''显示成就
+        End If
+    End Sub
+
+    Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
+        ProgressBar1.Value = Process * 100
+        If Process = 1 Then
+            ProgressBar1.Value = 0
         End If
     End Sub
 End Class

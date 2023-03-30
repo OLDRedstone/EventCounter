@@ -28,6 +28,8 @@ Partial Class EventForm
         TitleBox = New PictureBox()
         InfoLabel = New Label()
         Timer1 = New Timer(components)
+        Timer2 = New Timer(components)
+        ProgressBar1 = New ProgressBar()
         CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
@@ -55,14 +57,26 @@ Partial Class EventForm
         ' 
         Timer1.Interval = 10
         ' 
+        ' Timer2
+        ' 
+        Timer2.Interval = 1
+        ' 
+        ' ProgressBar1
+        ' 
+        ProgressBar1.Location = New Point(114, 4)
+        ProgressBar1.MarqueeAnimationSpeed = 10
+        ProgressBar1.Name = "ProgressBar1"
+        ProgressBar1.Size = New Size(188, 14)
+        ProgressBar1.TabIndex = 2
+        ' 
         ' EventForm
         ' 
-        AutoScaleDimensions = New SizeF(96F, 96F)
-        AutoScaleMode = AutoScaleMode.Dpi
+        AutoScaleMode = AutoScaleMode.None
         BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
         BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
         BackgroundImageLayout = ImageLayout.None
-        ClientSize = New Size(0, 0)
+        ClientSize = New Size(329, 103)
+        Controls.Add(ProgressBar1)
         Controls.Add(InfoLabel)
         Controls.Add(TitleBox)
         DoubleBuffered = True
@@ -80,4 +94,6 @@ Partial Class EventForm
     Friend WithEvents TitleBox As PictureBox
     Friend WithEvents InfoLabel As Label
     Friend WithEvents Timer1 As Timer
+    Friend WithEvents Timer2 As Timer
+    Friend WithEvents ProgressBar1 As ProgressBar
 End Class
