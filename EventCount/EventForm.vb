@@ -1,7 +1,6 @@
 ﻿Imports System.Drawing.Text
 Imports System.IO
 Imports System.Threading
-Imports System.Runtime.InteropServices
 
 Public Class EventForm
 
