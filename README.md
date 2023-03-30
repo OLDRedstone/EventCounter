@@ -38,6 +38,8 @@
 * 更改了算法，效率大增（本机实测，读取 **when_the_apple_is_bad.zip [^3]** 只需20.24s）
 * 更改了启动方式，现在不会一启动就打开文件了
 * 将字体移至外部读取，解决了字体无法读取问题
+* 添加了进度条
+* 添加了左键反选功能
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
