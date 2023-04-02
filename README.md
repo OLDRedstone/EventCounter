@@ -40,6 +40,11 @@
 * 将字体移至外部读取，解决了字体无法读取问题
 * 添加了进度条
 * 添加了左键反选功能
+* 显示关卡名时能够转化Unicode了
+* 优化文件读取时的内存占用
+* 读取程序内存占用（暂时没地儿放，以及好像加了这玩意后程序启动得很慢了……
+* 添加窗口关闭动画（或许该考虑取消窗口边框了？或许转Unicode没用了？
+
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
