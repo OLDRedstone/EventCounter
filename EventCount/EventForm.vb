@@ -1,5 +1,7 @@
-﻿Imports System.Drawing.Text
+﻿Imports System.ComponentModel
+Imports System.Drawing.Text
 Imports System.IO
+Imports System.Text.RegularExpressions
 Imports System.Threading
 
 Public Class EventForm
@@ -11,6 +13,7 @@ Public Class EventForm
     Dim RdlevelFile As String = ""
     ReadOnly TempFile As String = "\%EventCounterRDLevelUnzip%"
     ReadOnly AchiFile As String = "C:\ProgramData\Achievements"
+    Dim LevelName As String = ""
 
     Dim RDFont As Font
 
@@ -27,23 +30,26 @@ Public Class EventForm
 
     ReadOnly Row As UInt16 = 4
 
-    Dim Process As Double = 0
-
+    Dim Progress As UInt64 = 0
+    Dim Maximum As UInt64 = 0
 
     Dim Cou = New Dictionary(Of String, UInt64)
     Dim EveType = New Dictionary(Of String, String)
     Dim EventsLang = New Dictionary(Of LangTable, String)
     Dim TitleLang = New Dictionary(Of LangTable, String)
-    Dim AchieveMentsLang = New Dictionary(Of LangTable, String)
+    Dim AchiLang = New Dictionary(Of LangTable, String)
     Dim Assets = New Dictionary(Of String, IconTypes)
     Dim SelEvent = New List(Of String)
-    Dim AchieveMents = New List(Of String)
+    Dim Achi = New List(Of String)
 
     Dim CurrentLang As LangType = LangType.zh
 
-    Dim Tick As Double = 0
+    Dim ramCounter = New PerformanceCounter("Process", "Private Bytes", Process.GetCurrentProcess.ProcessName)
+
+    Dim SizeTick As Double = 0
     Dim startSize As Size
     Dim EndHeight As Int16
+    Dim WillClose As Boolean
     Dim FrameSize As Size =
         (Me.PointToScreen(New Point()) - Me.Location) +
         New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X)
@@ -98,6 +104,7 @@ Public Class EventForm
         fontCollection.AddFontFile(GetFile("Fonts\SourceHanSansCN-Bold.otf"))
         RDFont = New Font(fontCollection.Families(0), 12)
         InfoLabel.Font = RDFont
+        Label1.Font = RDFont
     End Sub
 
 
@@ -109,6 +116,7 @@ Public Class EventForm
     Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         FirstLoad()
         Reload()
+        Timer2.Start()
     End Sub
 
 
@@ -120,11 +128,10 @@ Public Class EventForm
             System.IO.File.Delete(AchiFile)
             For Each I In b.Split(vbCrLf)
                 If I <> "" Then
-                    AchieveMents.add(I)
+                    Achi.add(I)
                 End If
             Next
         End If
-        'TitleBox.Size = New Point(My.Resources.ResourceData.Title.Width / 5, My.Resources.ResourceData.Title.Height)
         StartControlCounts = Me.Controls.Count
         ChangeFont()
 
@@ -163,21 +170,21 @@ Public Class EventForm
         For lang = 0 To 1
             For Each K In My.Resources.ResourceData.Achievement.Split(vbCrLf)
                 Dim e = K.Split(vbTab)
-                AchieveMentsLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 1))
+                AchiLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 1))
             Next
         Next
-
     End Sub
 
 
     Sub Reload()
+        Maximum = 0
+        Progress = 0
         Cou.clear
         For Each K In KeyString
             Dim E = K.Split(vbTab)(0)
             Cou.add(E, 0)
         Next
         If RdlevelFile.Length Then
-            Timer2.Start()
             Dim CE As New Thread(AddressOf CountingEvents)
             CE.Start()
             CE.Interrupt()
@@ -185,8 +192,7 @@ Public Class EventForm
         SelEvent.clear
         RenewTitle(Nothing, Nothing)
         InfoLabel.Top = TitleBox.Height
-        CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
-
+        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
     End Sub
 
 
@@ -246,7 +252,7 @@ Public Class EventForm
                 My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
             End If
             MouseEnterTheIcon(sender, e)
-            CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
+            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
         End If
     End Sub
 
@@ -268,11 +274,24 @@ Public Class EventForm
     End Sub
 
 
+    Sub MouseEnterTheAdLabel() Handles ProgressBar1.MouseEnter
+        CallTicking(Panel1.Height, Label1.Height + Label1.Top)
+    End Sub
+
+
+    Sub MouseLeaveTheAdLabel() Handles ProgressBar1.MouseLeave
+        CallTicking(Panel1.Height, 0)
+    End Sub
+
+
     Sub ShowLevelName(Head As String)
+        Dim CountsOfAll As UInt64 = 0
+        Dim Texts As String = ""
         For Each I In SelEvent
-            Head += $"{vbCrLf}{TitleLang(New LangTable With {.ID = EveType(I).ToString, .Lang = CurrentLang})}     {Cou(I)} * {EventsLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
+            Texts += $"{vbCrLf}{TitleLang(New LangTable With {.ID = EveType(I).ToString, .Lang = CurrentLang})}     {Cou(I)} * {EventsLang(New LangTable With {.ID = I, .Lang = CurrentLang})}"
+            CountsOfAll += Cou(I)
         Next
-        InfoLabel.Text = Head
+        InfoLabel.Text = IIf(Head = "", CountsOfAll, Head) & Texts
     End Sub
 
 
@@ -334,18 +353,32 @@ Public Class EventForm
     ''' 为数组赋值
     ''' </summary>
     Sub CountingEvents()
-        Dim Text = RdlevelFile.Split("{")
-        For i As UInt64 = 0 To Text.Length - 1
-            Dim T = Text(i)
-            If T.IndexOf("type") > 0 Then
-                Dim key = FindMidWord("""type"": """, """", T)
+        Dim AllCrLf = 0
+        Dim DoneCrlf = 0
+        Dim LevelData = RdlevelFile.Replace("},", "}," & vbCrLf).Replace(vbCrLf & vbCrLf, vbCrLf)
+
+        For Each c In LevelData
+            If c = vbCrLf Or c = vbLf Then
+                AllCrLf += 1
+            End If
+        Next
+        Maximum = AllCrLf
+
+        Dim ReadText As New StringReader(LevelData)
+        Dim ReadLine = ReadText.ReadLine()
+        While ReadLine <> Nothing
+            If ReadLine.IndexOf("type") > 0 Then
+                Dim key = FindMidWord("""type"": """, """", ReadLine)
                 If Cou.ContainsKey(key) Then
                     Cou(key) += 1
                 End If
             End If
-            Process = i / (Text.Length - 1)
-        Next
-        Timer2.Stop()
+            DoneCrlf += 1
+            ReadLine = ReadText.ReadLine()
+            Progress = DoneCrlf
+        End While
+        Progress = 0
+        ReadText.Dispose()
     End Sub
 
 
@@ -372,15 +405,17 @@ Public Class EventForm
             KillTemp()
             Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, $"{Environ("TEMP")}{TempFile}")
             Dim s As String() = Directory.GetFiles($"{Environ("TEMP")}{TempFile}", "*.rdlevel")
-            OpenLevel.FileName = $"{Environ("temp")}{TempFile}\{IO.Path.GetFileName(s(0))}"
+            OpenLevel.FileName = $"{Environ("TEMP")}{TempFile}\{IO.Path.GetFileName(s(0))}"
         Else
             CallAchievements(1)
             RdlevelFile = ""
         End If
         FilePath = OpenLevel.FileName
         If File.Exists(FilePath) Then
-            RdlevelFile = File.OpenText(FilePath).ReadToEnd
-            Me.Text = FindMidWord("""song"": """, """,", RdlevelFile)
+            Dim readFile = IO.File.OpenText(FilePath)
+            RdlevelFile = readFile.ReadToEnd
+            readFile.Dispose()
+            LevelName = UnicodeToString(FindMidWord("""song"": """, """,", RdlevelFile))
         End If
 
     End Sub
@@ -472,33 +507,14 @@ Public Class EventForm
         End Select
         RenewTitle(Nothing, Nothing)
         ShowLevelName("")
-        CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
-    End Sub
-
-
-    Private Sub Timer1_Tick(sender As Object, e As EventArgs) Handles Timer1.Tick
-        If Tick < 1 Then
-            Me.Width = startSize.Width + (Math.Max(Me.BackgroundImage.Width, InfoLabel.Width) + FrameSize.Width - startSize.Width) * Ease(Tick)
-            Me.Height = startSize.Height + (EndHeight - startSize.Height + FrameSize.Height) * Ease(Tick)
-            Tick += 0.01
-        Else Timer1.Stop()
-            Tick = 0
-        End If
+        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
     End Sub
 
 
     Function Ease(x As Double) As Double
         x = Math.Clamp(x, 0, 1)
-        Return IIf(x = 1, 1, 1 - 2 ^ (-10 * x))
+        Return Math.Clamp(1 - 2 ^ (-10 * x), 0, 1)
     End Function
-
-
-    Sub CallHeightChange(Height As UInt16)
-        startSize = Me.Size
-        EndHeight = Height
-        Tick = 0
-        Timer1.Start()
-    End Sub
 
 
     Function GetFile(Path As String) As String
@@ -526,19 +542,21 @@ Public Class EventForm
     End Function
 
 
-    Private Sub EventForm_Closed(sender As Object, e As EventArgs) Handles MyBase.Closed
+    Private Sub EventForm_Closed(sender As Object, e As MouseEventArgs) Handles Button1.Click
+        CloseWindow = True
         Dim b = New StreamWriter(AchiFile)
-        For Each I In AchieveMents
+        For Each I In Achi
             b.WriteLine(I)
         Next
         b.Close()
+        CallTicking(Me.Size, New SizeF(0, 0))
     End Sub
 
 
     Sub CallAchievements(Index As UInt16)
         Dim T = My.Resources.ResourceData.Achievement.Split(vbCrLf)(Index).Split(vbTab)(0)
-        If AchieveMents.Contains(T) = False Then
-            AchieveMents.add(T)
+        If Achi.Contains(T) = False Then
+            Achi.add(T)
         End If
     End Sub
 
@@ -550,17 +568,87 @@ Public Class EventForm
             OpenLevel.ShowDialog()
             Reload()
             ShowLevelName("")
-            CallHeightChange(InfoLabel.Height + InfoLabel.Top + FrameSize.Height)
+            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
         End If
         If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
             '''显示成就
         End If
     End Sub
 
-    Private Sub Timer2_Tick(sender As Object, e As EventArgs) Handles Timer2.Tick
-        ProgressBar1.Value = Process * 100
-        If Process = 1 Then
-            ProgressBar1.Value = 0
+
+    Public Function UnicodeToString(strCode As String) As String
+        UnicodeToString = strCode
+        If InStr(UnicodeToString, "\u") <= 0 Then
+            Exit Function
         End If
+        strCode = LCase(strCode)
+        Dim mc As MatchCollection
+        mc = Regex.Matches(strCode, "\\u\S{1,4}")
+        For Each m In mc
+            strCode = Replace(strCode, m.ToString, ChrW("&H" & Mid(CStr(m.ToString), 3, 6)))
+        Next
+        UnicodeToString = strCode
+    End Function
+
+
+    Function ShowAchievements(Title As String)
+        ShowAchievements = Title
+        For Each Item In Achi
+            ShowAchievements &= vbCrLf & AchiLang(New LangTable With {.ID = Item, .Lang = CurrentLang})
+        Next
+    End Function
+
+
+
+
+
+
+
+    Public CloseWindow As Boolean = False
+
+    Public PanelHeightTick As Double = 1
+    Public PanelHeightPreData As Double
+    Public PanelHeightData As Double
+
+    Public SizeChangeTick As Double = 1
+    Public SizeChangePreData As SizeF
+    Public SizeChangeData As SizeF
+
+    Sub CallTicking(startData As Int16, endData As Int16)
+        PanelHeightPreData = startData
+        PanelHeightData = endData
+        PanelHeightTick = 0
     End Sub
+    Sub CallTicking(startData As SizeF, endData As SizeF)
+        SizeChangePreData = startData
+        SizeChangeData = endData
+        SizeChangeTick = 0
+    End Sub
+    Function Ticking(sender As Object, e As EventArgs) Handles Timer2.Tick
+        If SizeChangeTick < 1 Then
+            SizeChangeTick += 0.01
+            ChangeData(Me.Width, SizeChangeTick, SizeChangePreData.Width, SizeChangeData.Width)
+            ChangeData(Me.Height, SizeChangeTick, SizeChangePreData.Height, SizeChangeData.Height)
+        ElseIf CloseWindow Then
+            End
+        End If
+        If PanelHeightTick < 1 Then
+            PanelHeightTick += 0.01
+            ChangeData(Panel1.Height, PanelHeightTick, PanelHeightPreData, PanelHeightData)
+        End If
+        If Progress > 0 Then
+            ProgressBar1.Maximum = Maximum
+            ProgressBar1.Value = Progress 'Maximum * (Ease(Progress / Maximum))
+            Label1.Text = $"{Mid(LevelName, 1, 10)}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB{vbCrLf}{(Progress / Maximum) * 100 \ 1 }%"
+        Else
+            ProgressBar1.Value = 0
+            Label1.Text = $"{Mid(LevelName, 1, 10)}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
+        End If
+
+        Return Nothing
+    End Function
+    Sub ChangeData(ByRef Data As Object, ByVal x As Double, ByVal startData As Int16, ByVal endData As Int16)
+        Data = startData + (endData - startData) * Ease(x)
+    End Sub
+
 End Class
