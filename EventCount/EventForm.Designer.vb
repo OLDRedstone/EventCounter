@@ -106,7 +106,7 @@ Partial Class EventForm
         BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
         BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
         BackgroundImageLayout = ImageLayout.None
-        ClientSize = New Size(336, 171)
+        ClientSize = New Size(0, 0)
         Controls.Add(Button1)
         Controls.Add(ProgressBar1)
         Controls.Add(InfoLabel)
