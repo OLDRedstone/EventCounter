@@ -76,6 +76,16 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找 System.Drawing.Bitmap 类型的本地化资源。
+        '''</summary>
+        Friend Shared ReadOnly Property ClosingForm() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("ClosingForm", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找 System.Byte[] 类型的本地化资源。
         '''</summary>
         Friend Shared ReadOnly Property SourceHanSansCN_Bold() As Byte()

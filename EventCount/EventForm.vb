@@ -12,7 +12,7 @@ Public Class EventForm
     Dim FilePath As String = ""
     Dim RdlevelFile As String = ""
     ReadOnly TempFile As String = "\%EventCounterRDLevelUnzip%"
-    ReadOnly AchiFile As String = "C:\ProgramData\Achievements"
+    ReadOnly AchiFile As String = "C:\ProgramData\EventCounter"
     Dim LevelName As String = ""
 
     Dim RDFont As Font
@@ -20,15 +20,11 @@ Public Class EventForm
     Dim IconSet As Rectangle = New Rectangle(
         New Point(48, 34),
         New Point(56, 28))
-    ReadOnly IconMag As UInt16 = 1
 
     Dim EventTypeIndex = EType.Sound
 
-    Dim StartControlCounts As UInt16 = 0
 
-    ReadOnly MouseToIntroductionBox As Point = New Point(10, -10)
-
-    ReadOnly Row As UInt16 = 4
+    ReadOnly Row As UInt16 = 4 '展示的行数
 
     Dim Progress As UInt64 = 0
     Dim Maximum As UInt64 = 0
@@ -45,14 +41,6 @@ Public Class EventForm
     Dim CurrentLang As LangType = LangType.zh
 
     Dim ramCounter = New PerformanceCounter("Process", "Private Bytes", Process.GetCurrentProcess.ProcessName)
-
-    Dim SizeTick As Double = 0
-    Dim startSize As Size
-    Dim EndHeight As Int16
-    Dim WillClose As Boolean
-    Dim FrameSize As Size =
-        (Me.PointToScreen(New Point()) - Me.Location) +
-        New Point((Me.PointToScreen(New Point()) - Me.Location).X, -(Me.PointToScreen(New Point()) - Me.Location).X)
 
 
     ''' <summary>
@@ -113,26 +101,26 @@ Public Class EventForm
     ''' </summary>
     ''' <param name="sender">控件</param>
     ''' <param name="e">控件参数</param>
-    Private Sub Form_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Form_Load() Handles MyBase.Load
         FirstLoad()
         Reload()
-        Timer2.Start()
+        TickTimer.Start()
     End Sub
 
 
     Sub FirstLoad()
-        If My.Computer.FileSystem.FileExists(AchiFile) Then
-            Dim a = New StreamReader(AchiFile)
+
+        If My.Computer.FileSystem.DirectoryExists(AchiFile) And My.Computer.FileSystem.FileExists($"{AchiFile}\Achievements") Then
+            Dim a = New StreamReader($"{AchiFile}\Achievements")
             Dim b = a.ReadToEnd
             a.Close()
-            System.IO.File.Delete(AchiFile)
+            'System.IO.File.Delete(AchiFile)
             For Each I In b.Split(vbCrLf)
                 If I <> "" Then
                     Achi.add(I)
                 End If
             Next
         End If
-        StartControlCounts = Me.Controls.Count
         ChangeFont()
 
 
@@ -173,6 +161,9 @@ Public Class EventForm
                 AchiLang.add(New LangTable With {.ID = e(0), .Lang = lang}, e(lang + 1))
             Next
         Next
+
+        Me.Location = My.Computer.Screen.Bounds.Size / 2
+
     End Sub
 
 
@@ -190,9 +181,10 @@ Public Class EventForm
             CE.Interrupt()
         End If
         SelEvent.clear
-        RenewTitle(Nothing, Nothing)
+        RenewTitle()
         InfoLabel.Top = TitleBox.Height
-        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
+        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
+
     End Sub
 
 
@@ -224,7 +216,7 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseEnterTheIcon(sender As PictureBox, e As EventArgs)
-        ShowLevelName($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{EventsLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
+        ShowSelEvents($"{IIf(Cou(sender.Name), $"{Cou(sender.Name)} * ", "")}{EventsLang(New LangTable With {.ID = sender.Name, .Lang = CurrentLang})}")
         If Cou(sender.Name) Then
             sender.BackgroundImage = ReturnImage(sender.Name, "Selected")
         Else
@@ -252,7 +244,7 @@ Public Class EventForm
                 My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
             End If
             MouseEnterTheIcon(sender, e)
-            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
+            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
         End If
     End Sub
 
@@ -263,7 +255,7 @@ Public Class EventForm
     ''' <param name="sender">图标控件</param>
     ''' <param name="e">控件属性</param>
     Sub MouseLeaveTheIcon(sender As PictureBox, e As EventArgs)
-        ShowLevelName("")
+        ShowSelEvents("")
         If SelEvent.Contains(sender.Name) = False Then
             If Cou(sender.Name) Then
                 sender.BackgroundImage = ReturnImage(sender.Name, "None")
@@ -284,7 +276,7 @@ Public Class EventForm
     End Sub
 
 
-    Sub ShowLevelName(Head As String)
+    Sub ShowSelEvents(Head As String)
         Dim CountsOfAll As UInt64 = 0
         Dim Texts As String = ""
         For Each I In SelEvent
@@ -305,8 +297,8 @@ Public Class EventForm
             If K.Split(vbTab)(1) = ET.ToString Then
                 Dim NewIcon = New PictureBox With {
                     .Location = New Point(
-                        IconSet.Left + (i \ Row) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2) * IconMag,
-                        IconSet.Top + (i Mod Row) * IconSet.Height * IconMag),
+                        IconSet.Left + (i \ Row) * IIf(EventTypeIndex < 2, IconSet.Width, IconSet.Width / 2),
+                        IconSet.Top + (i Mod Row) * IconSet.Height),
                     .Font = RDFont,
                     .BackColor = Color.Transparent,
                     .Name = K.Split(vbTab)(0)
@@ -331,6 +323,13 @@ Public Class EventForm
                 i += 1
             End If
         Next
+
+        For Each C As Control In Me.Controls
+            AddHandler C.MouseDown, AddressOf MoveFormStart
+            AddHandler C.MouseMove, AddressOf MoveForm
+        Next
+
+
     End Sub
 
 
@@ -399,7 +398,7 @@ Public Class EventForm
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Private Sub OpenLevel_FileOk(sender As Object, e As System.ComponentModel.CancelEventArgs) Handles OpenLevel.FileOk
+    Private Sub OpenLevel_FileOk() Handles OpenLevel.FileOk
         If Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
         ElseIf Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
             KillTemp()
@@ -426,7 +425,7 @@ Public Class EventForm
     ''' </summary>
     ''' <param name="sender"></param>
     ''' <param name="e"></param>
-    Sub RenewTitle(sender As Object, e As MouseEventArgs)
+    Sub RenewTitle()
         Dim TitleImage = My.Resources.ResourceData.Title
         TitleBox.BackgroundImage = TitleImage.Clone(
             New Rectangle(EventTypeIndex * 48, 0, 48, 152),
@@ -505,9 +504,9 @@ Public Class EventForm
                     End If
                 Next
         End Select
-        RenewTitle(Nothing, Nothing)
-        ShowLevelName("")
-        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
+        RenewTitle()
+        ShowSelEvents("")
+        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
     End Sub
 
 
@@ -542,15 +541,51 @@ Public Class EventForm
     End Function
 
 
-    Private Sub EventForm_Closed(sender As Object, e As MouseEventArgs) Handles Button1.Click
+
+
+
+    Sub MouseEnterTheCloseButton() Handles CloseButton.MouseEnter
+        CloseButton.BackgroundImage = Image.FromFile(GetFile("Icons\ClosingFormSelected.png"))
+    End Sub
+    Sub MouseLeaveTheCloseButton() Handles CloseButton.MouseLeave
+        CloseButton.BackgroundImage = Image.FromFile(GetFile("Icons\ClosingForm.png"))
+    End Sub
+    Private Sub EventForm_Closed() Handles CloseButton.Click
         CloseWindow = True
-        Dim b = New StreamWriter(AchiFile)
+        My.Computer.FileSystem.CreateDirectory(AchiFile)
+        Dim b = New StreamWriter($"{AchiFile}\Achievements")
         For Each I In Achi
             b.WriteLine(I)
         Next
         b.Close()
         CallTicking(Me.Size, New SizeF(0, 0))
     End Sub
+    Private Sub EventForm_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+        e.Cancel = True
+        EventForm_Closed()
+    End Sub
+
+
+
+
+
+    Private MeLocation As Point
+    Function MoveFormStart() Handles MyBase.MouseDown
+        MeLocation = Me.PointToClient(MousePosition)
+
+        Return Nothing
+    End Function
+    Function MoveForm() Handles MyBase.MouseMove
+
+        If Control.MouseButtons = MouseButtons.Left Then
+
+            Me.Location = MousePosition - MeLocation
+        End If
+        Return Nothing
+    End Function
+
+
+
 
 
     Sub CallAchievements(Index As UInt16)
@@ -561,14 +596,14 @@ Public Class EventForm
     End Sub
 
 
-    Private Sub EventForm_Click(sender As Object, e As EventArgs) Handles MyBase.Click
-        Dim P = PointToClient(Cursor.Position)
+    Private Sub EventForm_Click() Handles MyBase.Click
+        Dim P = PointToClient(MousePosition)
         If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
             My.Computer.Audio.Play(GetFile($"Sounds\Open{Math.Floor(Rnd() * 3)}.wav"))
             OpenLevel.ShowDialog()
             Reload()
-            ShowLevelName("")
-            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top + FrameSize.Height) + FrameSize)
+            ShowSelEvents("")
+            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
         End If
         If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
             '''显示成就
@@ -624,7 +659,7 @@ Public Class EventForm
         SizeChangeData = endData
         SizeChangeTick = 0
     End Sub
-    Function Ticking(sender As Object, e As EventArgs) Handles Timer2.Tick
+    Function Ticking(sender As Object, e As EventArgs) Handles TickTimer.Tick
         If SizeChangeTick < 1 Then
             SizeChangeTick += 0.01
             ChangeData(Me.Width, SizeChangeTick, SizeChangePreData.Width, SizeChangeData.Width)
@@ -639,10 +674,10 @@ Public Class EventForm
         If Progress > 0 Then
             ProgressBar1.Maximum = Maximum
             ProgressBar1.Value = Progress 'Maximum * (Ease(Progress / Maximum))
-            Label1.Text = $"{Mid(LevelName, 1, 10)}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB{vbCrLf}{(Progress / Maximum) * 100 \ 1 }%"
+            Label1.Text = $"{(Progress / Maximum) * 100 \ 1 }% [Loading...]{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
         Else
             ProgressBar1.Value = 0
-            Label1.Text = $"{Mid(LevelName, 1, 10)}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
+            Label1.Text = $"{LevelName}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
         End If
 
         Return Nothing

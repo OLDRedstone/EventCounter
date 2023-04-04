@@ -27,18 +27,19 @@ Partial Class EventForm
         OpenLevel = New OpenFileDialog()
         TitleBox = New PictureBox()
         InfoLabel = New Label()
-        Timer2 = New Timer(components)
         ProgressBar1 = New ProgressBar()
         Panel1 = New Panel()
         Label1 = New Label()
-        Button1 = New Button()
+        TickTimer = New Timer(components)
+        CloseButton = New PictureBox()
         CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
         Panel1.SuspendLayout()
+        CType(CloseButton, ComponentModel.ISupportInitialize).BeginInit()
         SuspendLayout()
         ' 
         ' OpenLevel
         ' 
-        OpenLevel.Filter = "节奏医生关卡文件|*.rdlevel;*.rdzip"' 
+        OpenLevel.Filter = "节奏医生关卡文件|*.rdlevel;*.rdzip" ' 
         ' TitleBox
         ' 
         TitleBox.Location = New Point(0, 0)
@@ -55,12 +56,7 @@ Partial Class EventForm
         InfoLabel.Name = "InfoLabel"
         InfoLabel.Size = New Size(19, 17)
         InfoLabel.TabIndex = 1
-        InfoLabel.Text = " 0"' 
-        ' Timer2
-        ' 
-        Timer2.Enabled = True
-        Timer2.Interval = 1
-        ' 
+        InfoLabel.Text = " 0" ' 
         ' ProgressBar1
         ' 
         ProgressBar1.Location = New Point(114, 4)
@@ -86,19 +82,20 @@ Partial Class EventForm
         Label1.Name = "Label1"
         Label1.Size = New Size(46, 17)
         Label1.TabIndex = 0
-        Label1.Text = "Label1"' 
-        ' Button1
+        Label1.Text = "Label1" ' 
+        ' TickTimer
         ' 
-        Button1.BackColor = Color.FromArgb(CByte(255), CByte(192), CByte(192))
-        Button1.FlatAppearance.BorderColor = Color.Maroon
-        Button1.FlatAppearance.MouseDownBackColor = Color.Red
-        Button1.FlatAppearance.MouseOverBackColor = Color.FromArgb(CByte(255), CByte(128), CByte(128))
-        Button1.FlatStyle = FlatStyle.Popup
-        Button1.Location = New Point(272, 118)
-        Button1.Name = "Button1"
-        Button1.Size = New Size(28, 28)
-        Button1.TabIndex = 4
-        Button1.UseVisualStyleBackColor = False
+        TickTimer.Enabled = True
+        TickTimer.Interval = 1
+        ' 
+        ' CloseButton
+        ' 
+        CloseButton.BackgroundImage = CType(resources.GetObject("CloseButton.BackgroundImage"), Image)
+        CloseButton.Location = New Point(272, 118)
+        CloseButton.Name = "CloseButton"
+        CloseButton.Size = New Size(28, 28)
+        CloseButton.TabIndex = 5
+        CloseButton.TabStop = False
         ' 
         ' EventForm
         ' 
@@ -106,14 +103,14 @@ Partial Class EventForm
         BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
         BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
         BackgroundImageLayout = ImageLayout.None
-        ClientSize = New Size(0, 0)
-        Controls.Add(Button1)
+        ClientSize = New Size(10, 10)
+        Controls.Add(CloseButton)
         Controls.Add(ProgressBar1)
         Controls.Add(InfoLabel)
         Controls.Add(TitleBox)
         Controls.Add(Panel1)
         DoubleBuffered = True
-        FormBorderStyle = FormBorderStyle.Fixed3D
+        FormBorderStyle = FormBorderStyle.None
         Icon = CType(resources.GetObject("$this.Icon"), Icon)
         MaximizeBox = False
         Name = "EventForm"
@@ -121,6 +118,7 @@ Partial Class EventForm
         CType(TitleBox, ComponentModel.ISupportInitialize).EndInit()
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()
+        CType(CloseButton, ComponentModel.ISupportInitialize).EndInit()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -128,9 +126,9 @@ Partial Class EventForm
     Friend WithEvents OpenLevel As OpenFileDialog
     Friend WithEvents TitleBox As PictureBox
     Friend WithEvents InfoLabel As Label
-    Friend WithEvents Timer2 As Timer
     Friend WithEvents ProgressBar1 As ProgressBar
     Friend WithEvents Panel1 As Panel
     Friend WithEvents Label1 As Label
-    Friend WithEvents Button1 As Button
+    Friend WithEvents TickTimer As Timer
+    Friend WithEvents CloseButton As PictureBox
 End Class
