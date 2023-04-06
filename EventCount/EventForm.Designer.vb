@@ -32,14 +32,17 @@ Partial Class EventForm
         Label1 = New Label()
         TickTimer = New Timer(components)
         CloseButton = New PictureBox()
+        Panel2 = New Panel()
+        Label2 = New Label()
         CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
         Panel1.SuspendLayout()
         CType(CloseButton, ComponentModel.ISupportInitialize).BeginInit()
+        Panel2.SuspendLayout()
         SuspendLayout()
         ' 
         ' OpenLevel
         ' 
-        OpenLevel.Filter = "节奏医生关卡文件|*.rdlevel;*.rdzip" ' 
+        OpenLevel.Filter = "节奏医生关卡文件|*.rdlevel;*.rdzip"' 
         ' TitleBox
         ' 
         TitleBox.Location = New Point(0, 0)
@@ -56,7 +59,7 @@ Partial Class EventForm
         InfoLabel.Name = "InfoLabel"
         InfoLabel.Size = New Size(19, 17)
         InfoLabel.TabIndex = 1
-        InfoLabel.Text = " 0" ' 
+        InfoLabel.Text = " 0"' 
         ' ProgressBar1
         ' 
         ProgressBar1.Location = New Point(114, 4)
@@ -67,7 +70,7 @@ Partial Class EventForm
         ' 
         ' Panel1
         ' 
-        Panel1.BackColor = Color.FromArgb(CByte(44), CByte(44), CByte(44))
+        Panel1.BackColor = Color.FromArgb(CByte(59), CByte(59), CByte(59))
         Panel1.Controls.Add(Label1)
         Panel1.Location = New Point(114, 19)
         Panel1.Name = "Panel1"
@@ -82,7 +85,7 @@ Partial Class EventForm
         Label1.Name = "Label1"
         Label1.Size = New Size(46, 17)
         Label1.TabIndex = 0
-        Label1.Text = "Label1" ' 
+        Label1.Text = "Label1"' 
         ' TickTimer
         ' 
         TickTimer.Enabled = True
@@ -97,6 +100,24 @@ Partial Class EventForm
         CloseButton.TabIndex = 5
         CloseButton.TabStop = False
         ' 
+        ' Panel2
+        ' 
+        Panel2.AutoScroll = True
+        Panel2.Controls.Add(Label2)
+        Panel2.Location = New Point(78, 18)
+        Panel2.Name = "Panel2"
+        Panel2.Size = New Size(34, 0)
+        Panel2.TabIndex = 6
+        ' 
+        ' Label2
+        ' 
+        Label2.AutoSize = True
+        Label2.ForeColor = Color.Cyan
+        Label2.Location = New Point(3, 3)
+        Label2.Name = "Label2"
+        Label2.Size = New Size(46, 17)
+        Label2.TabIndex = 0
+        Label2.Text = "Label2"' 
         ' EventForm
         ' 
         AutoScaleMode = AutoScaleMode.None
@@ -104,6 +125,7 @@ Partial Class EventForm
         BackgroundImage = CType(resources.GetObject("$this.BackgroundImage"), Image)
         BackgroundImageLayout = ImageLayout.None
         ClientSize = New Size(10, 10)
+        Controls.Add(Panel2)
         Controls.Add(CloseButton)
         Controls.Add(ProgressBar1)
         Controls.Add(InfoLabel)
@@ -119,6 +141,8 @@ Partial Class EventForm
         Panel1.ResumeLayout(False)
         Panel1.PerformLayout()
         CType(CloseButton, ComponentModel.ISupportInitialize).EndInit()
+        Panel2.ResumeLayout(False)
+        Panel2.PerformLayout()
         ResumeLayout(False)
         PerformLayout()
     End Sub
@@ -131,4 +155,6 @@ Partial Class EventForm
     Friend WithEvents Label1 As Label
     Friend WithEvents TickTimer As Timer
     Friend WithEvents CloseButton As PictureBox
+    Friend WithEvents Panel2 As Panel
+    Friend WithEvents Label2 As Label
 End Class

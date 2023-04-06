@@ -17,7 +17,7 @@ Public Class EventForm
 
     Dim RDFont As Font
 
-    Dim IconSet As Rectangle = New Rectangle(
+    Dim IconSet As New Rectangle(
         New Point(48, 34),
         New Point(56, 28))
 
@@ -29,18 +29,18 @@ Public Class EventForm
     Dim Progress As UInt64 = 0
     Dim Maximum As UInt64 = 0
 
-    Dim Cou = New Dictionary(Of String, UInt64)
-    Dim EveType = New Dictionary(Of String, String)
-    Dim EventsLang = New Dictionary(Of LangTable, String)
-    Dim TitleLang = New Dictionary(Of LangTable, String)
-    Dim AchiLang = New Dictionary(Of LangTable, String)
-    Dim Assets = New Dictionary(Of String, IconTypes)
-    Dim SelEvent = New List(Of String)
-    Dim Achi = New List(Of String)
+    ReadOnly Cou = New Dictionary(Of String, UInt64)
+    ReadOnly EveType = New Dictionary(Of String, String)
+    ReadOnly EventsLang = New Dictionary(Of LangTable, String)
+    ReadOnly TitleLang = New Dictionary(Of LangTable, String)
+    ReadOnly AchiLang = New Dictionary(Of LangTable, String)
+    ReadOnly Assets = New Dictionary(Of String, IconTypes)
+    ReadOnly SelEvent = New List(Of String)
+    ReadOnly Achi = New List(Of String)
 
-    Dim CurrentLang As LangType = LangType.zh
+    ReadOnly CurrentLang As LangType = LangType.zh
 
-    Dim ramCounter = New PerformanceCounter("Process", "Private Bytes", Process.GetCurrentProcess.ProcessName)
+    ReadOnly ramCounter = New PerformanceCounter("Process", "Private Bytes", Process.GetCurrentProcess.ProcessName)
 
 
     ''' <summary>
@@ -93,6 +93,7 @@ Public Class EventForm
         RDFont = New Font(fontCollection.Families(0), 12)
         InfoLabel.Font = RDFont
         Label1.Font = RDFont
+        Label2.Font = RDFont
     End Sub
 
 
@@ -163,7 +164,7 @@ Public Class EventForm
         Next
 
         Me.Location = My.Computer.Screen.Bounds.Size / 2
-
+        ShowSelEvents("0")
     End Sub
 
 
@@ -183,7 +184,6 @@ Public Class EventForm
         SelEvent.clear
         RenewTitle()
         InfoLabel.Top = TitleBox.Height
-        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
 
     End Sub
 
@@ -244,7 +244,6 @@ Public Class EventForm
                 My.Computer.Audio.Play(GetFile("Sounds\Off.wav"))
             End If
             MouseEnterTheIcon(sender, e)
-            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
         End If
     End Sub
 
@@ -284,6 +283,7 @@ Public Class EventForm
             CountsOfAll += Cou(I)
         Next
         InfoLabel.Text = IIf(Head = "", CountsOfAll, Head) & Texts
+        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
     End Sub
 
 
@@ -365,6 +365,7 @@ Public Class EventForm
 
         Dim ReadText As New StringReader(LevelData)
         Dim ReadLine = ReadText.ReadLine()
+        LevelData = Nothing
         While ReadLine <> Nothing
             If ReadLine.IndexOf("type") > 0 Then
                 Dim key = FindMidWord("""type"": """, """", ReadLine)
@@ -506,11 +507,9 @@ Public Class EventForm
         End Select
         RenewTitle()
         ShowSelEvents("")
-        CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
     End Sub
 
-
-    Function Ease(x As Double) As Double
+    Shared Function Ease(x As Double) As Double
         x = Math.Clamp(x, 0, 1)
         Return Math.Clamp(1 - 2 ^ (-10 * x), 0, 1)
     End Function
@@ -525,8 +524,7 @@ Public Class EventForm
         End If
     End Function
 
-
-    Function FindMidWord(startStr As String, endStr As String, text As String) As String
+    Shared Function FindMidWord(startStr As String, endStr As String, text As String) As String
         Dim startIndex As Integer = text.IndexOf(startStr)
         Dim endIndex As Integer = text.IndexOf(endStr, startIndex + startStr.Length)
         If startIndex = -1 OrElse endIndex = -1 Then
@@ -560,7 +558,7 @@ Public Class EventForm
         b.Close()
         CallTicking(Me.Size, New SizeF(0, 0))
     End Sub
-    Private Sub EventForm_Closing(sender As Object, e As CancelEventArgs) Handles Me.Closing
+    Private Sub EventForm_Closing(sender As Object, e As CancelEventArgs) Handles MyBase.Closing
         e.Cancel = True
         EventForm_Closed()
     End Sub
@@ -595,7 +593,7 @@ Public Class EventForm
         End If
     End Sub
 
-
+    Private AchiFrameOpened As Boolean = False
     Private Sub EventForm_Click() Handles MyBase.Click
         Dim P = PointToClient(MousePosition)
         If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
@@ -603,15 +601,21 @@ Public Class EventForm
             OpenLevel.ShowDialog()
             Reload()
             ShowSelEvents("")
-            CallTicking(Me.Size, New SizeF(Math.Max(InfoLabel.Width, Me.BackgroundImage.Width), InfoLabel.Height + InfoLabel.Top))
         End If
         If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
-            '''显示成就
+            If AchiFrameOpened Then
+                CallTicking(New RectangleF(Panel2.Location, Panel2.Size), New Rectangle(78, 18, 34, 0))
+            Else
+                CallTicking(New RectangleF(Panel2.Location, Panel2.Size), New Rectangle(48, 20, 302 - 48, 152 - 20))
+                Label2.Text = ShowAchievements("-Achievements-")
+                '''显示成就
+            End If
+            AchiFrameOpened = Not AchiFrameOpened
         End If
     End Sub
 
 
-    Public Function UnicodeToString(strCode As String) As String
+    Public Shared Function UnicodeToString(strCode As String) As String
         UnicodeToString = strCode
         If InStr(UnicodeToString, "\u") <= 0 Then
             Exit Function
@@ -637,7 +641,7 @@ Public Class EventForm
 
 
 
-
+    Public AnimationSpeed = 0.02
 
     Public CloseWindow As Boolean = False
 
@@ -649,6 +653,10 @@ Public Class EventForm
     Public SizeChangePreData As SizeF
     Public SizeChangeData As SizeF
 
+    Public RecPanelChangeTick As Double = 1
+    Public RecPanelChangePreData As RectangleF
+    Public RecPanelChangeData As RectangleF
+
     Sub CallTicking(startData As Int16, endData As Int16)
         PanelHeightPreData = startData
         PanelHeightData = endData
@@ -659,30 +667,51 @@ Public Class EventForm
         SizeChangeData = endData
         SizeChangeTick = 0
     End Sub
+    Sub CallTicking(startData As RectangleF, endData As RectangleF)
+        RecPanelChangePreData = startData
+        RecPanelChangeData = endData
+        RecPanelChangeTick = 0
+    End Sub
     Function Ticking(sender As Object, e As EventArgs) Handles TickTimer.Tick
+
         If SizeChangeTick < 1 Then
-            SizeChangeTick += 0.01
+            SizeChangeTick += AnimationSpeed
             ChangeData(Me.Width, SizeChangeTick, SizeChangePreData.Width, SizeChangeData.Width)
             ChangeData(Me.Height, SizeChangeTick, SizeChangePreData.Height, SizeChangeData.Height)
         ElseIf CloseWindow Then
             End
         End If
+
         If PanelHeightTick < 1 Then
-            PanelHeightTick += 0.01
+            PanelHeightTick += AnimationSpeed
             ChangeData(Panel1.Height, PanelHeightTick, PanelHeightPreData, PanelHeightData)
         End If
+
+        If RecPanelChangeTick < 1 Then
+            RecPanelChangeTick += AnimationSpeed
+            ChangeData(Panel2.Width, RecPanelChangeTick, RecPanelChangePreData.Width, RecPanelChangeData.Width)
+            ChangeData(Panel2.Height, RecPanelChangeTick, RecPanelChangePreData.Height, RecPanelChangeData.Height)
+            ChangeData(Panel2.Left, RecPanelChangeTick, RecPanelChangePreData.Left, RecPanelChangeData.Left)
+            ChangeData(Panel2.Top, RecPanelChangeTick, RecPanelChangePreData.Top, RecPanelChangeData.Top)
+        End If
+
+
+        Dim P As Double = Math.Round(ramCounter.NextValue \ 104857.6) / 10
+        Dim ShowP As String = IIf(P > 1024, Math.Round(P \ 102.4) / 10 & "GB", P & "MB")
         If Progress > 0 Then
             ProgressBar1.Maximum = Maximum
             ProgressBar1.Value = Progress 'Maximum * (Ease(Progress / Maximum))
-            Label1.Text = $"{(Progress / Maximum) * 100 \ 1 }% [Loading...]{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
+            Label1.Text = $"{(Progress / Maximum) * 100 \ 1 }% [Loading...]{vbCrLf}{ShowP}"
         Else
             ProgressBar1.Value = 0
-            Label1.Text = $"{LevelName}{vbCrLf}{Math.Round(ramCounter.NextValue / 104857.6) / 10}MB"
+            Label1.Text = $"{LevelName}{vbCrLf}{ShowP}"
+
         End If
 
         Return Nothing
     End Function
-    Sub ChangeData(ByRef Data As Object, ByVal x As Double, ByVal startData As Int16, ByVal endData As Int16)
+
+    Shared Sub ChangeData(ByRef Data As Object, ByVal x As Double, ByVal startData As Int16, ByVal endData As Int16)
         Data = startData + (endData - startData) * Ease(x)
     End Sub
 
