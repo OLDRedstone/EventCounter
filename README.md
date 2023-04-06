@@ -48,7 +48,9 @@
 * ~去你的边框！~
 * 将关卡名、程序内存占用、文件读取进度等信息折叠在进度条下方。
 * 添加了README.md的句号。
-
+* 加入了成就界面。
+* 翻倍了动画速度。
+* 关闭动画小更改。
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>  
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
