@@ -159,8 +159,10 @@
   <data name="RichTextLabel1.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAAAS4AAAAYCAYAAABEFBBHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAzSURBVHhe7cExAQAAAMKg9U9tDB8gAAAAAAAAAAAAAAAA
-        AAAAAAAAAAAAAAAAAAAAgIsacVgAAYknaz4AAAAASUVORK5CYII=
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACSSURBVHhe7dq7EcMgFEVBynsFUQ690Io6eRbG8vgTOAXP
+        bojyM3cQBQAAAAD+S82elyNblHx8AFhRZDvOXLWYsaojYT1rES9gVdHOjfUaqhmyXoULWNVYWL2+RWoc
+        PRcYwGpizivhAjZicQHbmZXKcMcF7OMjVF8hA1jR/c/ixVMIAAAAAAAAAAAAAAAAAOCHUm7FS3kEr92H
+        xgAAAABJRU5ErkJggg==
 </value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

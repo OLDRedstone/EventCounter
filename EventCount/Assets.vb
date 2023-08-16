@@ -2,9 +2,11 @@
 Imports EventCount.PublicLib
 Imports System.Text.RegularExpressions
 Imports System.IO
+Imports System.Drawing.Text
 
 Public Class Assets
-
+	Private Shared _Font As Font
+	Private Shared FontCollection As New PrivateFontCollection
 	Public Shared ReadOnly Property IconSet As New Rectangle(
 		New Point(48, 34),
 		New Point(56, 28))
@@ -19,9 +21,11 @@ Public Class Assets
 					M.Value,
 					i,
 					New Bitmap(GetFile($"Icons\{M.Value}{i}.png"))
-				)
+)
 			Next
 		Next
+		FontCollection.AddFontFile(GetFile("Fonts\SourceHanSansCN-VF.ttf"))
+		_Font = New Font(FontCollection.Families(2), 12)
 	End Sub
 	Public Shared ReadOnly Property GetImg(Name As String, Status As SelectStatus) As Bitmap
 		Get
@@ -38,6 +42,11 @@ Public Class Assets
 				My.Computer.Audio.Play(GetFile($"Sounds\{Name}.wav"))
 		End Select
 	End Sub
+	Public Shared ReadOnly Property Font As Font
+		Get
+			Return _Font
+		End Get
+	End Property
 End Class
 
 Public Class Achievements

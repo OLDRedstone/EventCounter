@@ -57,12 +57,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_043466FE7B0943BA9DC9FC0C2D1B309A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_04F0E77E528347E091447896D3A5D690"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -273,6 +267,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_21A14D645DED481A8B39CDC49425EB08"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_251A42A36ED34456975864B80AC795B8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -328,6 +328,12 @@
         "Entry"
         {
         "MsmKey" = "8:_2E62500F06124A129E14F075AE279C22"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2E76E0922F9D49499689F4A23E664857"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -418,6 +424,12 @@
         "Entry"
         {
         "MsmKey" = "8:_3F0E34ECFE41443EA72B9177A9485602"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_426194CF9B9946A290B7410E3E9E7D5D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -688,12 +700,6 @@
         "Entry"
         {
         "MsmKey" = "8:_66577709287C4151A13AF6D6E0DE6FED"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_669BE646F3294822876A1F884E23D454"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1738,6 +1744,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -1902,26 +1916,6 @@
             {
             "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\FlashSelected.png"
             "TargetName" = "8:FlashSelected.png"
-            "Tag" = "8:"
-            "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_043466FE7B0943BA9DC9FC0C2D1B309A"
-            {
-            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\z-Icons.zip"
-            "TargetName" = "8:z-Icons.zip"
             "Tag" = "8:"
             "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
             "Condition" = "8:"
@@ -2638,6 +2632,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_21A14D645DED481A8B39CDC49425EB08"
+            {
+            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\HideTextSelected.png"
+            "TargetName" = "8:HideTextSelected.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_251A42A36ED34456975864B80AC795B8"
             {
             "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\MoveNone.png"
@@ -2822,6 +2836,26 @@
             {
             "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\SetForegroundInactiveSelected.png"
             "TargetName" = "8:SetForegroundInactiveSelected.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2E76E0922F9D49499689F4A23E664857"
+            {
+            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\HideText.png"
+            "TargetName" = "8:HideText.png"
             "Tag" = "8:"
             "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
             "Condition" = "8:"
@@ -3124,6 +3158,26 @@
             "TargetName" = "8:TintRowsNone.png"
             "Tag" = "8:"
             "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_426194CF9B9946A290B7410E3E9E7D5D"
+            {
+            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Fonts\\SourceHanSansCN-VF.ttf"
+            "TargetName" = "8:SourceHanSansCN-VF.ttf"
+            "Tag" = "8:"
+            "Folder" = "8:_DD54C95E19DD403BBBE4378B35C0D98F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4024,26 +4078,6 @@
             "TargetName" = "8:PlayExpressionSelected.png"
             "Tag" = "8:"
             "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_669BE646F3294822876A1F884E23D454"
-            {
-            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Fonts\\SourceHanSansCN-Bold.otf"
-            "TargetName" = "8:SourceHanSansCN-Bold.otf"
-            "Tag" = "8:"
-            "Folder" = "8:_DD54C95E19DD403BBBE4378B35C0D98F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

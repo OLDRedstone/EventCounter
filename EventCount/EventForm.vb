@@ -42,10 +42,9 @@ Public Class EventForm
 	Public ReadOnly Property Assets As New Assets
 	Public ReadOnly Property PublicLib As New PublicLib
 	Public ReadOnly Property Achievements As Achievements
-
+	Public Property ShowData As Boolean = True
 	Sub ChangeFont()
-		fontCollection.AddFontFile(GetFile("Fonts\SourceHanSansCN-Bold.otf"))
-		RDFont = New Font(fontCollection.Families(0), 12)
+		RDFont = Assets.Font
 		Label1.Font = RDFont
 		Label2.Font = RDFont
 		RichTextLabel1.Font = RDFont
@@ -58,6 +57,7 @@ Public Class EventForm
 		AddHandler MyBase.Closing, AddressOf EventForm_Closing
 		AddHandler CloseButton.MouseEnter, AddressOf MouseEnterTheCloseButton
 		AddHandler CloseButton.MouseLeave, AddressOf MouseLeaveTheCloseButton
+		AddHandler HideButton.MouseUp, AddressOf MouseClickTheHiddenButton
 		AddHandler TickTimer.Tick, AddressOf Ticking
 		For Each Ctrl As Control In MyBase.Controls
 			AddHandler Ctrl.MouseDown, AddressOf MoveFormStart
@@ -226,6 +226,17 @@ Public Class EventForm
 		CloseButton.BackgroundImage = Image.FromFile(GetFile("Icons\ClosingForm.png"))
 	End Sub
 
+	Sub MouseClickTheHiddenButton()
+		ShowData = Not ShowData
+		RichTextLabel1.ShowText = ShowData
+		If ShowData Then
+			HideButton.BackgroundImage = Image.FromFile(GetFile("Icons\HideTextSelected.png"))
+		Else
+			HideButton.BackgroundImage = Image.FromFile(GetFile("Icons\HideText.png"))
+		End If
+		Assets.PlaySnd(SoundType.On)
+	End Sub
+
 	Private Sub EventForm_Closed()
 		CloseWindow = True
 		Achievements.Write()
@@ -288,6 +299,7 @@ Public Class EventForm
 	Function ShowAchievements(Title As String) As String
 		ShowAchievements = Title
 		ShowAchievements &= vbCrLf & Achievements.ToString(CurrentLang)
+		Return ShowAchievements
 	End Function
 
 	Public AnimationSpeed = 0.02

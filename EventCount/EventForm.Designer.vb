@@ -35,10 +35,12 @@ Partial Class EventForm
 		Label2 = New Label()
 		EventPanel1 = New EventPanel()
 		RichTextLabel1 = New RichTextLabel()
+		HideButton = New PictureBox()
 		CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
 		Panel1.SuspendLayout()
 		CType(CloseButton, ComponentModel.ISupportInitialize).BeginInit()
 		Panel2.SuspendLayout()
+		CType(HideButton, ComponentModel.ISupportInitialize).BeginInit()
 		SuspendLayout()
 		' 
 		' OpenLevel
@@ -130,9 +132,19 @@ Partial Class EventForm
 		RichTextLabel1.ItemHeight = 24US
 		RichTextLabel1.Location = New Point(0, 152)
 		RichTextLabel1.Name = "RichTextLabel1"
+		RichTextLabel1.NumberWidth = 21US
 		RichTextLabel1.Size = New Size(302, 24)
 		RichTextLabel1.TabIndex = 8
 		RichTextLabel1.Title = Nothing
+		' 
+		' HideButton
+		' 
+		HideButton.BackgroundImage = My.Resources.Resources.HideTextSelected
+		HideButton.Location = New Point(272, 90)
+		HideButton.Name = "HideButton"
+		HideButton.Size = New Size(28, 28)
+		HideButton.TabIndex = 5
+		HideButton.TabStop = False
 		' 
 		' EventForm
 		' 
@@ -143,6 +155,7 @@ Partial Class EventForm
 		ClientSize = New Size(10, 10)
 		Controls.Add(RichTextLabel1)
 		Controls.Add(Panel2)
+		Controls.Add(HideButton)
 		Controls.Add(CloseButton)
 		Controls.Add(ProgressBar1)
 		Controls.Add(TitleBox)
@@ -160,6 +173,7 @@ Partial Class EventForm
 		CType(CloseButton, ComponentModel.ISupportInitialize).EndInit()
 		Panel2.ResumeLayout(False)
 		Panel2.PerformLayout()
+		CType(HideButton, ComponentModel.ISupportInitialize).EndInit()
 		ResumeLayout(False)
 	End Sub
 
@@ -174,4 +188,5 @@ Partial Class EventForm
 	Friend WithEvents Panel2 As Panel
 	Friend WithEvents Label2 As Label
 	Friend WithEvents RichTextLabel1 As RichTextLabel
+	Friend WithEvents HideButton As PictureBox
 End Class

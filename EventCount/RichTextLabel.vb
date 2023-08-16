@@ -2,7 +2,6 @@
 Public Class RichTextLabel
 	Public Property ItemHeight As UShort = 24
 	Public Property NumberWidth As UShort = 24
-	Private LabelFont As Font
 	Private _Title As String
 	Public ReadOnly Property Count As ULong
 		Get
@@ -15,6 +14,16 @@ Public Class RichTextLabel
 		End Get
 		Set(value As String)
 			_Title = value
+			RefreshUI()
+		End Set
+	End Property
+	Private _ShowText As Boolean = True
+	Public Property ShowText As Boolean
+		Get
+			Return _ShowText
+		End Get
+		Set(value As Boolean)
+			_ShowText = value
 			RefreshUI()
 		End Set
 	End Property
@@ -40,7 +49,11 @@ Public Class RichTextLabel
 		If _Title = "" Or _Title = Nothing Then
 			G.DrawString(Count, Font, New SolidBrush(Color.White), New PointF)
 		Else
-			G.DrawString($"{GetCount(_Title)}*{GetLang(_Title, CurrentLang)}", Font, New SolidBrush(Color.White), New PointF)
+			If _ShowText Then
+				G.DrawString($"{GetCount(_Title)}*{GetLang(_Title, CurrentLang)}", Font, New SolidBrush(Color.White), New PointF)
+			Else
+				G.DrawString($"{GetCount(_Title)}* ???", Font, New SolidBrush(Color.White), New PointF)
+			End If
 		End If
 
 		Dim MaxValue As ULong
@@ -77,7 +90,11 @@ Public Class RichTextLabel
 							NumberWidth, I * ItemHeight + ItemHeight \ 2,
 							(Width - NumberWidth) * item.Value \ MaxValue, ItemHeight \ 2)
 			G.DrawString($"{item.Value}", Font, New SolidBrush(CFore), New PointF(0, I * ItemHeight))
-			G.DrawString($"{GetLang(item.Key, LangT.zh_cn)}", Font, New SolidBrush(CFore), New PointF(NumberWidth, I * ItemHeight))
+			If _ShowText Then
+				G.DrawString($"{GetLang(item.Key, LangT.zh_cn)}", Font, New SolidBrush(CFore), New PointF(NumberWidth, I * ItemHeight))
+			Else
+				G.DrawString($"???", Font, New SolidBrush(CFore), New PointF(NumberWidth, I * ItemHeight))
+			End If
 			I += 1
 		Next
 		Height = I * ItemHeight
