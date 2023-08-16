@@ -51,11 +51,11 @@
 * 加入了成就界面。
 * 翻倍了动画速度。
 * 关闭动画小更改。
+* 重写了计数算法和UI（本机实测，读取 **when_the_apple_is_bad.zip [^3]** 只需约8.45s）。
+* 暂时关闭了成就功能。
 ## 计划
 * 文件拖入打开功能。
 * 代码整理 ~怎么可能整理得完嘛~ 。
-* 重写了计数算法和UI（本机实测，读取 **when_the_apple_is_bad.zip [^3]** 只需约8.45s）。
-* 暂时关闭了成就功能。
 - - -
 <font color=#cccccc size=1>Markdown好难（（（</font>
 [^3]: https://codex.rhythm.cafe/bad-appl-BSYqKCtoXzn.rdzip
