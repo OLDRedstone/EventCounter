@@ -129,10 +129,8 @@ Partial Class EventForm
 		' RichTextLabel1
 		' 
 		RichTextLabel1.BackgroundImage = CType(resources.GetObject("RichTextLabel1.BackgroundImage"), Image)
-		RichTextLabel1.ItemHeight = 24US
 		RichTextLabel1.Location = New Point(0, 152)
 		RichTextLabel1.Name = "RichTextLabel1"
-		RichTextLabel1.NumberWidth = 21US
 		RichTextLabel1.Size = New Size(302, 24)
 		RichTextLabel1.TabIndex = 8
 		RichTextLabel1.Title = Nothing

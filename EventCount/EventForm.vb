@@ -1,13 +1,9 @@
 ﻿Imports System.ComponentModel
 Imports System.Drawing.Text
 Imports System.IO
-Imports System.Net
-Imports System.Text
 Imports System.Text.RegularExpressions
-Imports System.Threading
-Imports System.Threading.ThreadPool
+Imports System.Threading.Tasks
 Imports EventCount.PublicLib
-Imports EventCount.Animation.Ease
 
 Public Class EventForm
 
@@ -24,15 +20,11 @@ Public Class EventForm
 
 	Public Property EventTypeIndex = EventT.Sounds
 
-	Public Property Progress As UInt64 = 0
+	Public Property Progress As Double = 0
 
 	Public Property Maximum As UInt64 = 0
 
 	Public Property ChosenEvent As New List(Of String)
-
-	Public ReadOnly Property Achi = New List(Of String)
-
-	Public Property CEAREv As New AutoResetEvent(False)
 
 
 	ReadOnly Property RamCounter = New PerformanceCounter("Process", "Private Bytes", Process.GetCurrentProcess.ProcessName)
@@ -73,9 +65,12 @@ Public Class EventForm
 		AddHandler EventPanel1.ItemCleared, AddressOf EventClear
 		AddHandler EventPanel1.ItemReversed, AddressOf EventReverse
 		AddHandler EventPanel1.HoverItemChanged, AddressOf HoveringItemChanged
+		AddHandler RichTextLabel1.ItemClick, AddressOf RichLabelClickItem
+		AddHandler Counter.ProgressChanged, AddressOf ProgressChanged
 		FirstLoad()
 		Reload()
 		TickTimer.Start()
+		Control.CheckForIllegalCrossThreadCalls = False
 	End Sub
 
 
@@ -114,6 +109,7 @@ Public Class EventForm
 		RichTextLabel1.Title = Head
 		RichTextLabel1.EventList = ChosenEvent.ToDictionary(Function(i) i, Function(i) GetCount(i))
 		CallTicking(Me.Size, New SizeF(RichTextLabel1.Width, RichTextLabel1.Height + RichTextLabel1.Top))
+		EventPanel1.RefreshUI()
 	End Sub
 
 	Public Sub KillTemp()
@@ -144,29 +140,6 @@ Public Class EventForm
 		ShowSelEvents(EventPanel1.HoverItem)
 	End Sub
 	Private Sub OpenLevel_FileOk()
-		Assets.PlaySnd(SoundType.Close)
-		If Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
-		ElseIf Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
-			KillTemp()
-			Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, $"{Environ("TEMP")}{TempFile}")
-			Dim s As String = Directory.GetFiles($"{Environ("TEMP")}{TempFile}", "*.rdlevel")(0)
-			OpenLevel.FileName = $"{Environ("TEMP")}{TempFile}\{Path.GetFileName(s)}"
-		Else
-			Achievements.Add("NoFiles", "但是没文件啊？", "But No Files Here!")
-		End If
-		FilePath = OpenLevel.FileName
-		If File.Exists(FilePath) Then
-			Dim readFile = IO.File.OpenText(FilePath)
-			Try
-				Counter.Load(readFile.ReadToEnd)
-			Catch ex As OutOfMemoryException
-				Achievements.Add("Boom", "爆炸啦！", "Boom!")
-			End Try
-			readFile.Dispose()
-			LevelName = UnicodeToString(Counter.SongName)
-			EventPanel1.SetList(EventTypeIndex, Counter.GetList(EventTypeIndex), New List(Of String))
-			ChosenEvent.Clear()
-		End If
 	End Sub
 
 	Sub RenewPanel()
@@ -176,9 +149,17 @@ Public Class EventForm
 			TitleImage.PixelFormat)
 	End Sub
 
+	Public Sub RichLabelClickItem(name As String)
+		If name = "" Or Not ShowData Then
+			Exit Sub
+		End If
+		PanelChoosenInactivatedClick(name)
+		EventPanel1.SetList(EventTypeIndex, Counter.GetList(EventTypeIndex), ChosenEvent)
+	End Sub
+
 	Private Sub TitleBox_Click(sender As Object, e As MouseEventArgs)
 		Dim P = PointToClient(Cursor.Position)
-		Dim Q = New Point((P.X - 4) \ 30, (P.Y - 4) \ 29)
+		Dim Q = New Point((P.X - 4) \ 30, Math.Clamp((P.Y - 4) \ 29, 0, 4))
 
 		Select Case e.Button
 			Case MouseButtons.Left
@@ -263,13 +244,64 @@ Public Class EventForm
 	End Function
 
 	Private AchiFrameOpened As Boolean = False
+	Private Sub LoadRDFile()
+		Assets.PlaySnd(SoundType.Close)
+		If Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
+		ElseIf Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
+			KillTemp()
+			Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, $"{Environ("TEMP")}{TempFile}")
+			Dim s As String = Directory.GetFiles($"{Environ("TEMP")}{TempFile}", "*.rdlevel")(0)
+			OpenLevel.FileName = $"{Environ("TEMP")}{TempFile}\{Path.GetFileName(s)}"
+		Else
+			Achievements.Add("NoFiles", "但是没文件啊？", "But No Files Here!")
+		End If
+		FilePath = OpenLevel.FileName
+		If File.Exists(FilePath) Then
+			Dim readFile = IO.File.OpenText(FilePath)
+			Dim tempTask As Task
+			'Dim RDLevel = readFile.ReadToEnd
+			Counter.dataSender.Enabled = True
+			EventPanel1.Enabled = False
+			tempTask = New Task(Sub()
+									Try
+										Counter.Load(readFile)
+									Catch ex As OutOfMemoryException
+										Achievements.Add("Boom", "爆炸啦！", "Boom!")
+									End Try
+									readFile.Dispose()
+									GC.Collect()
+									LevelName = Regex.Replace(UnicodeToString(If(Counter.SongName, "")), "</?color(=#?\w*)?>", "")
+									EventPanel1.SetList(EventTypeIndex, Counter.GetList(EventTypeIndex), New List(Of String))
+									EventPanel1.Enabled = True
+									ChosenEvent.Clear()
+									Reload()
+								End Sub)
+			tempTask.Start()
+		End If
+
+	End Sub
+	Private lastProgress
+	Public Sub ProgressChanged(Progress As Double)
+		Me.Progress = Progress
+		Dim millSeconds As Double = (1 - Progress) / ((Progress - lastProgress) / (Counter.dataSender.Interval))
+		Dim timeRamain = TimeSpan.FromMilliseconds(
+			If(
+				Double.IsNaN(millSeconds),
+				0,
+				millSeconds))
+		ProgressBar1.Value = Progress * ProgressBar1.Maximum
+		lastProgress = Progress
+		Label1.Text = $"预计还剩 {timeRamain.TotalSeconds.ToString("0.#")} s"
+	End Sub
 	Private Sub EventForm_Click()
 		Dim P = PointToClient(MousePosition)
 		If P.X > 48 And P.X < 79 And P.Y > 4 And P.Y < 19 Then
 			Assets.PlaySnd(SoundType.Open)
-			OpenLevel.ShowDialog()
-			Reload()
-			ShowSelEvents("")
+			If OpenLevel.ShowDialog() = DialogResult.OK Then
+				LoadRDFile()
+			End If
+			'Reload()
+			'ShowSelEvents("")
 		End If
 		If P.X > 80 And P.X < 111 And P.Y > 4 And P.Y < 19 Then
 			If AchiFrameOpened Then
@@ -322,12 +354,6 @@ Public Class EventForm
 
 	Public Tick As Double
 
-	'Private FormSizeEaseStart As Rectangle
-	'Private FormSizeEaseTarget As Rectangle
-	'Private FormSizeEaseTick As UShort
-	'Sub FormSizeEase(Target As Rectangle)
-	'	FormSizeEaseTick = 0
-	'End Sub
 
 	Sub CallTicking(startData As Int16, endData As Int16)
 		PanelHeightPreData = startData
@@ -376,12 +402,8 @@ Public Class EventForm
 
 		Dim P As Double = Math.Round(ramCounter.NextValue \ 104857.6) / 10
 		Dim ShowP As String = IIf(P > 1024, Math.Round(P \ 102.4) / 10 & "GB", P & "MB")
-		If Progress > 0 Then
-			ProgressBar1.Maximum = Maximum
-			ProgressBar1.Value = Progress 'Maximum * (Ease(Progress / Maximum))
-			Label1.Text = $"{(Progress / Maximum) * 100 \ 1 }% [Loading...]{vbCrLf}{ShowP}"
-		Else
-			ProgressBar1.Value = 0
+
+		If Progress = 1 Then
 			Label1.Text = $"{LevelName}{vbCrLf}{ShowP}"
 		End If
 
