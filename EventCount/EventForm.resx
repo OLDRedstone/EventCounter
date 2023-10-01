@@ -18,7 +18,7 @@
     <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
     <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
     <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing"">Blue</data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
         <value>[base64 mime encoded serialized .NET Framework object]</value>
     </data>
@@ -158,11 +158,20 @@
   </data>
   <data name="RichTextLabel1.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
-        iVBORw0KGgoAAAANSUhEUgAAAS4AAAAYCAYAAABEFBBHAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACSSURBVHhe7dq7EcMgFEVBynsFUQ690Io6eRbG8vgTOAXP
+        iVBORw0KGgoAAAANSUhEUgAAAS4AAAARCAYAAABjG0GPAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACKSURBVHhe7dq7EcMgFEVBynsFUQ690Io6eRbG8viTOgDP
         bojyM3cQBQAAAAD+S82elyNblHx8AFhRZDvOXLWYsaojYT1rES9gVdHOjfUaqhmyXoULWNVYWL2+RWoc
-        PRcYwGpizivhAjZicQHbmZXKcMcF7OMjVF8hA1jR/c/ixVMIAAAAAAAAAAAAAAAAAOCHUm7FS3kEr92H
-        xgAAAABJRU5ErkJggg==
+        PRcYwGpizivhAjZicQHbmZXKcMcF7OMjVF8hA1jR/c/ixVMIAAAAAAD4vVJuP6B5BKNkFzkAAAAASUVO
+        RK5CYII=
+</value>
+  </data>
+  <data name="OutputButton.BackgroundImage" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAABGdBTUEAALGPC/xhBQAAAMdJREFUSEvt
+        kFEOAiEMRLkgd+KeHEZDZNxxthUIdfXDSd4HbelbNiGllNsn6Zoj1lAkXXMW5ZxD0f3fE1rDjBfu11pf
+        7jDLwrbMAn2E7zDTQsTqMRz+EDAt1Jd4aLQ/FCJaB/iQUTA/FL572Yyohe+7QgRnZSXbQu9lVr3VtoSj
+        pRwWgW0hyxqI1sGyUKNLrRqzJbQWey8D4UIFwfkvfJ613nKJcBUE598Stl+2CzIljIwrBBiIQvdfL0S0
+        EU3XHLGGInlYUroDc9/AorTBe5oAAAAASUVORK5CYII=
 </value>
   </data>
   <metadata name="$this.TrayHeight" type="System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">

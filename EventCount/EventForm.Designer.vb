@@ -36,11 +36,13 @@ Partial Class EventForm
 		EventPanel1 = New EventPanel()
 		RichTextLabel1 = New RichTextLabel()
 		HideButton = New PictureBox()
+		OutputButton = New PictureBox()
 		CType(TitleBox, ComponentModel.ISupportInitialize).BeginInit()
 		Panel1.SuspendLayout()
 		CType(CloseButton, ComponentModel.ISupportInitialize).BeginInit()
 		Panel2.SuspendLayout()
 		CType(HideButton, ComponentModel.ISupportInitialize).BeginInit()
+		CType(OutputButton, ComponentModel.ISupportInitialize).BeginInit()
 		SuspendLayout()
 		' 
 		' OpenLevel
@@ -131,7 +133,8 @@ Partial Class EventForm
 		RichTextLabel1.BackgroundImage = CType(resources.GetObject("RichTextLabel1.BackgroundImage"), Image)
 		RichTextLabel1.Location = New Point(0, 152)
 		RichTextLabel1.Name = "RichTextLabel1"
-		RichTextLabel1.Size = New Size(302, 24)
+		RichTextLabel1.ShowText = True
+		RichTextLabel1.Size = New Size(302, 17)
 		RichTextLabel1.TabIndex = 8
 		RichTextLabel1.Title = Nothing
 		' 
@@ -144,6 +147,15 @@ Partial Class EventForm
 		HideButton.TabIndex = 5
 		HideButton.TabStop = False
 		' 
+		' OutputButton
+		' 
+		OutputButton.BackgroundImage = CType(resources.GetObject("OutputButton.BackgroundImage"), Image)
+		OutputButton.Location = New Point(272, 62)
+		OutputButton.Name = "OutputButton"
+		OutputButton.Size = New Size(28, 28)
+		OutputButton.TabIndex = 5
+		OutputButton.TabStop = False
+		' 
 		' EventForm
 		' 
 		AutoScaleMode = AutoScaleMode.None
@@ -153,6 +165,7 @@ Partial Class EventForm
 		ClientSize = New Size(10, 10)
 		Controls.Add(RichTextLabel1)
 		Controls.Add(Panel2)
+		Controls.Add(OutputButton)
 		Controls.Add(HideButton)
 		Controls.Add(CloseButton)
 		Controls.Add(ProgressBar1)
@@ -172,6 +185,7 @@ Partial Class EventForm
 		Panel2.ResumeLayout(False)
 		Panel2.PerformLayout()
 		CType(HideButton, ComponentModel.ISupportInitialize).EndInit()
+		CType(OutputButton, ComponentModel.ISupportInitialize).EndInit()
 		ResumeLayout(False)
 	End Sub
 
@@ -187,4 +201,5 @@ Partial Class EventForm
 	Friend WithEvents Label2 As Label
 	Friend WithEvents RichTextLabel1 As RichTextLabel
 	Friend WithEvents HideButton As PictureBox
+	Friend WithEvents OutputButton As PictureBox
 End Class

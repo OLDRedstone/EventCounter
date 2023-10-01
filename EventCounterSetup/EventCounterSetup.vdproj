@@ -375,6 +375,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_35C170B79F7B46CD956BDC49BEF25DC3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_35E98E5560E54602B41BB1DAABC0B010"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -802,6 +808,12 @@
         "Entry"
         {
         "MsmKey" = "8:_78B682FBD70344548ADE4B1C9EABF560"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_796EC2A971924329850D42D12851DD20"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2992,6 +3004,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35C170B79F7B46CD956BDC49BEF25DC3"
+            {
+            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\OutputButtonActive.png"
+            "TargetName" = "8:OutputButtonActive.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_35E98E5560E54602B41BB1DAABC0B010"
             {
             "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\SetupTitle.aseprite"
@@ -4427,6 +4459,26 @@
             {
             "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\SetHeartExplodeIntervalNone.png"
             "TargetName" = "8:SetHeartExplodeIntervalNone.png"
+            "Tag" = "8:"
+            "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_796EC2A971924329850D42D12851DD20"
+            {
+            "SourcePath" = "8:..\\EventCount\\bin\\Debug\\net6.0-windows\\Assets\\Icons\\OutputButton.png"
+            "TargetName" = "8:OutputButton.png"
             "Tag" = "8:"
             "Folder" = "8:_5F5C346BE420444B8EAFF21731BCAF63"
             "Condition" = "8:"
@@ -7474,16 +7526,16 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:EventCounter"
-        "ProductCode" = "8:{8A82C19D-6195-4DCE-9B3A-2D0638783B57}"
-        "PackageCode" = "8:{242A2349-AE4F-4B5B-B8B8-935E376D7D34}"
+        "ProductCode" = "8:{03A1A6DD-F87A-4BB1-B7DD-BC9F88AEFF3D}"
+        "PackageCode" = "8:{32CD0D4B-DE98-4C6E-A36E-9F948ABC6CB8}"
         "UpgradeCode" = "8:{0C24C15C-D449-4494-8BD2-1128CF0D2021}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.2.0"
-        "Manufacturer" = "8:Default Company Name"
+        "ProductVersion" = "8:2.2.2"
+        "Manufacturer" = "8:Observer"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
         "Title" = "8:EventCounter"
@@ -7491,7 +7543,7 @@
         "ARPCONTACT" = "8:Observer"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:事件计数器"
-        "ARPURLINFOABOUT" = "8:"
+        "ARPURLINFOABOUT" = "8:obugs.cn"
         "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"

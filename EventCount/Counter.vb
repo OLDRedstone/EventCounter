@@ -57,7 +57,7 @@ Public Class Counter
 		GC.Collect()
 		Return Nothing
 	End Function
-	Public Function ReadLine(Stream As IO.StreamReader) As String
+	Private Function ReadLine(Stream As IO.StreamReader) As String
 		Dim c(0) As Char
 		Dim s As String = ""
 		Stream.ReadBlock(c)
@@ -81,6 +81,9 @@ Public Class Counter
 		Next
 		'Return IncludedObjects.GroupBy(Function(i) i.Value.Type = T)
 		Return D
+	End Function
+	Public Shared Function GetList() As Dictionary(Of String, EventProperty)
+		Return IncludedObjects
 	End Function
 	Public Sub SendData()
 		RaiseEvent ProgressChanged(Progress / (Length + 1))

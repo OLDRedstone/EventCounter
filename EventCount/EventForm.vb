@@ -45,9 +45,9 @@ Public Class EventForm
 	Public Sub Form_Load() Handles MyBase.Load
 		AddHandler TitleBox.Click, AddressOf TitleBox_Click
 		AddHandler MyBase.Click, AddressOf EventForm_Click
-		AddHandler CloseButton.Click, AddressOf EventForm_Closed
 		AddHandler MyBase.Closing, AddressOf EventForm_Closing
 		AddHandler CloseButton.MouseEnter, AddressOf MouseEnterTheCloseButton
+		AddHandler CloseButton.Click, AddressOf EventForm_Closed
 		AddHandler CloseButton.MouseLeave, AddressOf MouseLeaveTheCloseButton
 		AddHandler HideButton.MouseUp, AddressOf MouseClickTheHiddenButton
 		AddHandler TickTimer.Tick, AddressOf Ticking
@@ -67,6 +67,9 @@ Public Class EventForm
 		AddHandler EventPanel1.HoverItemChanged, AddressOf HoveringItemChanged
 		AddHandler RichTextLabel1.ItemClick, AddressOf RichLabelClickItem
 		AddHandler Counter.ProgressChanged, AddressOf ProgressChanged
+		AddHandler OutputButton.MouseEnter, AddressOf MouseEnterTheOutputButton
+		AddHandler OutputButton.Click, AddressOf MouseClickTheOutputButton
+		AddHandler OutputButton.MouseLeave, AddressOf MouseLeaveTheOutputButton
 		FirstLoad()
 		Reload()
 		TickTimer.Start()
@@ -217,8 +220,27 @@ Public Class EventForm
 		End If
 		Assets.PlaySnd(SoundType.On)
 	End Sub
+	Sub MouseEnterTheOutputButton()
+		OutputButton.BackgroundImage = Image.FromFile(GetFile("Icons\OutputButtonActive.png"))
+	End Sub
+
+	Sub MouseClickTheOutputButton()
+		Assets.PlaySnd(SoundType.On)
+		RichTextLabel1.toImage(True, 0, Short.MaxValue).Save($"{Path.GetDirectoryName(OpenLevel.FileName)}\Output.png")
+		RichTextLabel1.toImage(False, 0, Short.MaxValue).Save($"{Path.GetDirectoryName(OpenLevel.FileName)}\OutputHidden.png")
+		Dim b = New StreamWriter($"{Path.GetDirectoryName(OpenLevel.FileName)}\Output.txt")
+		For Each I In Counter.GetList().OrderBy(Function(j) -j.Value.Count)
+			b.WriteLine($"{I.Value.Type}{vbTab}{I.Value.Count}{vbTab}{GetLang(I.Key, CurrentLang)}")
+		Next
+		b.Close()
+	End Sub
+
+	Sub MouseLeaveTheOutputButton()
+		OutputButton.BackgroundImage = Image.FromFile(GetFile("Icons\OutputButton.png"))
+	End Sub
 
 	Private Sub EventForm_Closed()
+		Assets.PlaySnd(SoundType.Off)
 		CloseWindow = True
 		Achievements.Write()
 		CallTicking(Me.Size, New SizeF(0, 0))
@@ -247,15 +269,15 @@ Public Class EventForm
 	Private Sub LoadRDFile()
 		Assets.PlaySnd(SoundType.Close)
 		If Path.GetExtension(OpenLevel.FileName) = ".rdlevel" Then
+			FilePath = OpenLevel.FileName
 		ElseIf Path.GetExtension(OpenLevel.FileName) = ".rdzip" Then
 			KillTemp()
 			Compression.ZipFile.ExtractToDirectory(OpenLevel.FileName, $"{Environ("TEMP")}{TempFile}")
 			Dim s As String = Directory.GetFiles($"{Environ("TEMP")}{TempFile}", "*.rdlevel")(0)
-			OpenLevel.FileName = $"{Environ("TEMP")}{TempFile}\{Path.GetFileName(s)}"
+			FilePath = $"{Environ("TEMP")}{TempFile}\{Path.GetFileName(s)}"
 		Else
 			Achievements.Add("NoFiles", "但是没文件啊？", "But No Files Here!")
 		End If
-		FilePath = OpenLevel.FileName
 		If File.Exists(FilePath) Then
 			Dim readFile = IO.File.OpenText(FilePath)
 			Dim tempTask As Task
@@ -291,7 +313,7 @@ Public Class EventForm
 				millSeconds))
 		ProgressBar1.Value = Progress * ProgressBar1.Maximum
 		lastProgress = Progress
-		Label1.Text = $"预计还剩 {timeRamain.TotalSeconds.ToString("0.#")} s"
+		Label1.Text = $"预计还剩 {timeRamain.TotalSeconds:0.#} s"
 	End Sub
 	Private Sub EventForm_Click()
 		Dim P = PointToClient(MousePosition)
