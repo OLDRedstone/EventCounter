@@ -233,6 +233,11 @@ Public Class EventForm
 			b.WriteLine($"{I.Value.Type}{vbTab}{I.Value.Count}{vbTab}{GetLang(I.Key, CurrentLang)}")
 		Next
 		b.Close()
+		Dim c = New StreamWriter($"{Path.GetDirectoryName(OpenLevel.FileName)}\Output.csv")
+		For Each I In Counter.GetList().OrderBy(Function(j) -j.Value.Count)
+			c.WriteLine($"{I.Value.Type},{vbTab}{I.Value.Count},{vbTab}{GetLang(I.Key, CurrentLang)}")
+		Next
+		c.Close()
 	End Sub
 
 	Sub MouseLeaveTheOutputButton()
