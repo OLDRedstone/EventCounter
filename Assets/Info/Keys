@@ -1,0 +1,62 @@
+PlaySong	Sound	播放音乐	Play Song
+SetCrotchetsPerBar	Sound	设置音节长度	Set Crotchets Per Bar
+PlaySound	Sound	播放音效	Play Sound
+SetBeatsPerMinute	Sound	设置BPM	Set Beats Per Minute
+SetClapSounds	Sound	设置按拍音效	Set Clap Sounds
+SetHeartExplodeVolume	Sound	设置心跳音量	Set Heart Explode Volume
+SetHeartExplodeInterval	Sound	设置心爆间隔	Set Heart Explode Interval
+SayReadyGetSetGo	Sound	护士语音设置	Say Ready, Get, Set, Go!
+SetGameSound	Sound	设置游戏音效	Set Game Sound
+SetBeatSound	Sound	设置节拍音效	Set Beat Sound
+SetCountingSound	Sound	设置数拍音效	Set Counting Sound
+AddClassicBeat	Rail	普通节拍	Add Classic Beat
+AddOneshotBeat	Rail	单发节拍	Add Oneshot Beat
+SetOneshotWave	Rail	单发波	Set Oneshot Wave
+AddFreeTimeBeat	Rail	自由节拍	Add Free Time Beat
+PulseFreeTimeBeat	Rail	脉动自由节拍	Pulse Free Time Beat
+SetRowXs	Rail	不可见拍子	Set Row Xs
+SetTheme	Motion	设置主题	Set Theme
+SetVFXPreset	Motion	预设特效	Set VFX Preset
+SetBackgroundColor	Motion	设置背景	Set Background
+SetForeground	Motion	设置前景	Set Foreground
+SetSpeed	Motion	设置速度	Set Speed
+Flash	Motion	闪烁	Flash
+CustomFlash	Motion	自定义闪烁	Custom Flash
+MoveCamera	Motion	移动摄像头	Move Camera
+HideRow	Motion	隐藏轨道	Hide Row
+MoveRow	Motion	移动轨道	Move Row
+PlayExpression	Motion	播放表情	Play Expression
+TintRows	Motion	轨道涂色	Paint Rows
+BassDrop	Motion	重低音震动	Bass Drop
+ShakeScreen	Motion	屏幕震动	Shake Screen
+FlipScreen	Motion	屏幕翻转	Flip Screen
+InvertColors	Motion	颜色反转	Invert Colors
+PulseCamera	Motion	脉冲摄影机	Pulse Camera
+TextExplosion	Motion	弹幕效果	Text Explosion
+ShowDialogue	Motion	显示对话	Show Dialogue
+ShowStatusSign	Motion	显示状态牌	Show Status Sign
+FloatingText	Motion	浮动文字	Floating Text
+AdvanceText	Motion	浮动文字递进	Advance Text
+ChangePlayersRows	Motion	切换玩家轨道	Change Player's Rows
+FinishLevel	Motion	结束关卡	Finish Level
+Comment	Motion	注释	Comment
+Stutter	Motion	卡带效果	Stutter
+ShowHands	Motion	显示手	Show Hands
+PaintHands	Motion	手涂色	Paint Hands
+SetHandOwner	Motion	手分配	Assign Hnads
+SetPlayStyle	Motion	设置播放模式	Set Play Style
+TagAction	Motion	标签动作	Tag Action
+CallCustomMethod	Motion	自定义方法	Call Custom Method
+NewWindowDance	Motion	窗口动效	Window Dance
+Move	Sprite	移动精灵图	Move Sprite
+Tint	Sprite	绘制精灵图	Paint Sprite
+PlayAnimation	Sprite	播放表情	Play Animation
+SetVisible	Sprite	显示/隐藏	Show/Hide
+Tile	Sprite	平铺精灵图	Tile Sprite
+ShowRooms	Room	排列显示房间	Show Rooms Horizontally
+MoveRoom	Room	移动房间	Move Room
+ReorderRooms	Room	重新排序房间	Reorder Rooms
+SetRoomContentMode	Room	设置房间内容模式	Set Room Content Mode
+MaskRoom	Room	房间遮罩	Mask Room
+FadeRoom	Room	淡入淡出房间	Fade Room
+SetRoomPerspective	Room	设置房间视角	Set Room Perspective
